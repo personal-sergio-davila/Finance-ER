@@ -757,7 +757,7 @@ function renderSummary() {
   netEl.style.color = net >= 0 ? 'var(--green)' : 'var(--red)';
   document.getElementById('s-count').textContent = data.length;
   const bycat = {};
-  data.filter(t => t.amount < 0).forEach(t => { const c = getCat(t); bycat[c] = (bycat[c]||0) + Math.abs(t.amount); });
+  data.filter(t => t.amount < 0 && getCat(t) !== 'Transfer').forEach(t => { const c = getCat(t); bycat[c] = (bycat[c]||0) + Math.abs(t.amount); });
   const sorted = Object.entries(bycat).sort((a,b) => b[1]-a[1]);
   const max = sorted[0]?.[1] || 1;
   document.getElementById('cat-bars').innerHTML = sorted.map(([cat,amt]) => `
@@ -773,7 +773,7 @@ function renderSummary() {
     options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>` $${ctx.raw.toFixed(2)}`}} }, cutout:'65%' }
   });
   const bypool = {};
-  data.filter(t => t.amount < 0).forEach(t => { bypool[t.pool] = (bypool[t.pool]||0) + Math.abs(t.amount); });
+  data.filter(t => t.amount < 0 && getCat(t) !== 'Transfer').forEach(t => { bypool[t.pool] = (bypool[t.pool]||0) + Math.abs(t.amount); });
   document.getElementById('pool-summary-cards').innerHTML = Object.entries(bypool).sort((a,b)=>b[1]-a[1]).map(([p,a]) => `
     <div class="stat"><div class="lbl">${p}</div><div class="val" style="color:${POOL_COLORS[p]||'var(--blue)'}">$${a.toFixed(2)}</div><div class="sub">${((a/expenses)*100).toFixed(0)}% of spending</div></div>`).join('');
 renderBudgetLimits(data);
@@ -1086,7 +1086,7 @@ function exportSummaryReport() {
   if (!data.length) { toast('No data to export', 'err'); return; }
   const getCat = t => t.cat || t.category || 'Other';
   const income = data.filter(t => t.amount > 0 && getCat(t) !== 'Transfer').reduce((a,t) => a+t.amount, 0);
-  const expenses = data.filter(t => t.amount < 0).reduce((a,t) => a+Math.abs(t.amount), 0);
+  const expenses = data.filter(t => t.amount < 0 && getCat(t) !== 'Transfer').reduce((a,t) => a+Math.abs(t.amount), 0);
   const bycat = {};
   data.filter(t => t.amount < 0).forEach(t => { const c = getCat(t); bycat[c] = (bycat[c]||0) + Math.abs(t.amount); });
   const lines = [
