@@ -1126,22 +1126,6 @@ async function updateField(id, field, value) {
     if (tx) tx[field] = value;
     toast(field + ' updated', 'ok');
   } catch(e) { toast('Error: ' + e.message, 'err'); }
-};
-  const poolMap = {
-    Food: 'Essentials', Debt: 'Bills', Utilities: 'Bills',
-    Transportation: 'Essentials', Personal: 'Guilt-Free', Income: 'Income',
-    Investing: 'Investing', Subscriptions: 'Guilt-Free', Medical: 'Essentials',
-    Health: 'Guilt-Free', Transfer: 'Transfer', Other: 'Essentials'
-  };
-  const subcategory = subMap[category] || 'Uncategorized';
-  const pool = poolMap[category] || 'Essentials';
-  try {
-    await dbUpdate('transactions', id, {category, subcategory, pool});
-    const tx = transactions.find(t => t.id === id);
-    if (tx) { tx.category = category; tx.subcategory = subcategory; tx.pool = pool; }
-    renderTxTable();
-    toast('Category updated', 'ok');
-  } catch(e) { toast('Error: ' + e.message, 'err'); }
 }
 
 /* ── CALCULATOR ── */
