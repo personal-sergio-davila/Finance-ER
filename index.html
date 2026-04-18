@@ -250,6 +250,7 @@ tr:hover td{background:var(--surface)}
     <button class="tab-btn active" onclick="switchTab('transactions')">Transactions</button>
     <button class="tab-btn" onclick="switchTab('summary')">Summary</button>
     <button class="tab-btn" onclick="switchTab('pools')">Pools & Goals</button>
+    <button class="tab-btn" onclick="switchTab('bills')">Bills</button>
     <button class="tab-btn" onclick="switchTab('calculator')">Calculator</button>
   </div>
   <span class="db-dot" id="db-dot" title="Database status"></span>
@@ -310,7 +311,16 @@ tr:hover td{background:var(--surface)}
       <canvas id="pie-chart" role="img" aria-label="Pie chart of spending by category"></canvas>
     </div>
     <div class="section-label">By pool</div>
-    <div class="grid-3" id="pool-summary-cards"></div>
+<div class="grid-3" id="pool-summary-cards"></div>
+<div class="section-label" style="margin-top:28px">Budget limits — spending vs target</div>
+<div id="budget-limits-section"></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px">
+  <select id="new-limit-cat" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 10px;border-radius:4px;outline:none">
+    <option>Food</option><option>Debt</option><option>Utilities</option><option>Transportation</option><option>Personal</option><option>Subscriptions</option><option>Medical</option><option>Health</option><option>Other</option>
+  </select>
+  <input type="number" id="new-limit-amount" placeholder="Monthly limit $" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 12px;border-radius:4px;outline:none;width:160px">
+  <button class="btn btn-primary" onclick="addBudgetLimit()">Set limit</button>
+</div>
   </div>
 </div>
 
@@ -334,6 +344,36 @@ tr:hover td{background:var(--surface)}
     <input type="text" id="new-pool-name" placeholder="Name" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 12px;border-radius:4px;outline:none;width:180px">
     <input type="number" id="new-pool-goal" placeholder="Target $" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 12px;border-radius:4px;outline:none;width:120px">
     <button class="btn btn-primary" onclick="addPoolOrGoal()">Add</button>
+  </div>
+</div>
+
+<!-- BILLS -->
+<div id="tab-bills" class="tab-panel">
+  <div class="section-label">Recurring bills</div>
+  <div id="bills-summary" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px"></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>Name</th><th>Amount</th><th>Due Day</th><th>Category</th><th>Type</th><th></th></tr>
+      </thead>
+      <tbody id="bills-body">
+        <tr><td colspan="6" class="loading">Loading bills...</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="section-label" style="margin-top:28px">Add bill</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+    <input type="text" id="new-bill-name" placeholder="Bill name" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 12px;border-radius:4px;outline:none;width:180px">
+    <input type="number" id="new-bill-amount" placeholder="Amount $" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 12px;border-radius:4px;outline:none;width:120px">
+    <input type="number" id="new-bill-due" placeholder="Due day (1-31)" min="1" max="31" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 12px;border-radius:4px;outline:none;width:140px">
+    <select id="new-bill-cat" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 10px;border-radius:4px;outline:none">
+      <option>Utilities</option><option>Subscriptions</option><option>Debt</option><option>Housing</option><option>Insurance</option><option>Transportation</option><option>Other</option>
+    </select>
+    <select id="new-bill-type" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 10px;border-radius:4px;outline:none">
+      <option value="true">Essential</option>
+      <option value="false">Non-essential</option>
+    </select>
+    <button class="btn btn-primary" onclick="addBill()">Add bill</button>
   </div>
 </div>
 
@@ -459,6 +499,7 @@ function switchTab(name) {
   if (name === 'summary') renderSummary();
   if (name === 'pools') loadPools();
   if (name === 'calculator') calcCompound();
+  if (name === 'bills') loadBills();
 }
 
 /* ── RULES / COLORS ── */
@@ -688,6 +729,7 @@ function renderSummary() {
   data.filter(t => t.amount < 0).forEach(t => { bypool[t.pool] = (bypool[t.pool]||0) + Math.abs(t.amount); });
   document.getElementById('pool-summary-cards').innerHTML = Object.entries(bypool).sort((a,b)=>b[1]-a[1]).map(([p,a]) => `
     <div class="stat"><div class="lbl">${p}</div><div class="val" style="color:${POOL_COLORS[p]||'var(--blue)'}">$${a.toFixed(2)}</div><div class="sub">${((a/expenses)*100).toFixed(0)}% of spending</div></div>`).join('');
+renderBudgetLimits(data);
 }
 
 /* ── POOLS & GOALS (unified) ── */
@@ -818,6 +860,129 @@ function loadGoals() {}
 function renderGoals() {}
 function addGoal() {}
 
+/* ── BILLS ── */
+let bills = [];
+async function loadBills() {
+  try {
+    bills = await dbGet('bills', 'order=due_day.asc');
+    renderBills();
+  } catch(e) { toast('Error loading bills: ' + e.message, 'err'); }
+}
+
+function renderBills() {
+  const total = bills.reduce((a,b) => a + parseFloat(b.amount), 0);
+  const essential = bills.filter(b => b.is_essential).reduce((a,b) => a + parseFloat(b.amount), 0);
+  const nonEssential = total - essential;
+  document.getElementById('bills-summary').innerHTML = `
+    <div class="stat"><div class="lbl">Total monthly</div><div class="val" style="color:var(--red)">$${total.toFixed(2)}</div></div>
+    <div class="stat"><div class="lbl">Essential</div><div class="val" style="color:var(--blue)">$${essential.toFixed(2)}</div></div>
+    <div class="stat"><div class="lbl">Non-essential</div><div class="val" style="color:var(--purple)">$${nonEssential.toFixed(2)}</div></div>
+    <div class="stat"><div class="lbl">Bills count</div><div class="val">${bills.length}</div></div>
+  `;
+  const tbody = document.getElementById('bills-body');
+  if (!bills.length) { tbody.innerHTML = '<tr><td colspan="6" style="color:var(--text3);text-align:center;padding:24px">No bills yet</td></tr>'; return; }
+  tbody.innerHTML = bills.map(b => `
+    <tr>
+      <td>${b.name}</td>
+      <td class="neg">$${parseFloat(b.amount).toFixed(2)}</td>
+      <td style="color:var(--text3)">Day ${b.due_day}</td>
+      <td>${b.category}</td>
+      <td><span style="font-size:0.62rem;padding:2px 8px;border-radius:3px;background:${b.is_essential?'rgba(77,184,122,0.15)':'rgba(139,127,232,0.15)'};color:${b.is_essential?'var(--green)':'var(--purple)'}">${b.is_essential?'Essential':'Non-essential'}</span></td>
+      <td><button onclick="deleteBill('${b.id}')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:0.9rem;padding:2px 6px">×</button></td>
+    </tr>`).join('');
+}
+
+async function addBill() {
+  const name = document.getElementById('new-bill-name').value.trim();
+  const amount = parseFloat(document.getElementById('new-bill-amount').value);
+  const due_day = parseInt(document.getElementById('new-bill-due').value);
+  const category = document.getElementById('new-bill-cat').value;
+  const is_essential = document.getElementById('new-bill-type').value === 'true';
+  if (!name || isNaN(amount) || isNaN(due_day)) return;
+  try {
+    const result = await dbInsert('bills', {name, amount, due_day, category, is_essential});
+    bills.push(result[0]);
+    bills.sort((a,b) => a.due_day - b.due_day);
+    renderBills();
+    document.getElementById('new-bill-name').value = '';
+    document.getElementById('new-bill-amount').value = '';
+    document.getElementById('new-bill-due').value = '';
+    toast('Bill added', 'ok');
+  } catch(e) { toast('Error: ' + e.message, 'err'); }
+}
+
+async function deleteBill(id) {
+  if (!confirm('Delete this bill?')) return;
+  try {
+    await dbDelete('bills', id);
+    bills = bills.filter(b => b.id !== id);
+    renderBills();
+    toast('Deleted', 'ok');
+  } catch(e) { toast('Error: ' + e.message, 'err'); }
+}
+
+/* ── BUDGET LIMITS ── */
+let budgetLimits = [];
+async function loadBudgetLimits() {
+  try {
+    budgetLimits = await dbGet('budget_limits', 'order=category.asc');
+  } catch(e) {}
+}
+
+function renderBudgetLimits(data) {
+  const el = document.getElementById('budget-limits-section');
+  if (!el) return;
+  if (!budgetLimits.length) { el.innerHTML = '<div style="color:var(--text3);font-size:0.75rem;padding:8px 0">No limits set yet — add one below to track spending against your targets.</div>'; return; }
+  const getCat = t => t.cat || t.category || 'Other';
+  const bycat = {};
+  data.filter(t => t.amount < 0).forEach(t => { const c = getCat(t); bycat[c] = (bycat[c]||0) + Math.abs(t.amount); });
+  el.innerHTML = budgetLimits.map(l => {
+    const spent = bycat[l.category] || 0;
+    const pct = Math.min(100, l.monthly_limit > 0 ? (spent / l.monthly_limit * 100) : 0);
+    const over = spent > l.monthly_limit;
+    const color = over ? 'var(--red)' : pct > 80 ? '#e8a840' : 'var(--green)';
+    return `<div class="bar-item" style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:12px 16px;margin-bottom:8px">
+      <div class="bar-meta">
+        <span>${l.category}</span>
+        <span style="color:${color}">$${spent.toFixed(0)} / $${parseFloat(l.monthly_limit).toFixed(0)} ${over?'⚠ over':''}</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct.toFixed(1)}%;background:${color}"></div></div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px">
+        <span style="font-size:0.62rem;color:var(--text3)">${pct.toFixed(0)}% of limit</span>
+        <button onclick="deleteBudgetLimit('${l.id}')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:0.72rem">remove</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function addBudgetLimit() {
+  const category = document.getElementById('new-limit-cat').value;
+  const monthly_limit = parseFloat(document.getElementById('new-limit-amount').value);
+  if (isNaN(monthly_limit)) return;
+  try {
+    const existing = budgetLimits.find(l => l.category === category);
+    if (existing) {
+      await dbUpdate('budget_limits', existing.id, {monthly_limit});
+      existing.monthly_limit = monthly_limit;
+    } else {
+      const result = await dbInsert('budget_limits', {category, monthly_limit});
+      budgetLimits.push(result[0]);
+    }
+    document.getElementById('new-limit-amount').value = '';
+    renderBudgetLimits((typeof filteredTransactions !== 'undefined' && filteredTransactions.length) ? filteredTransactions : transactions);
+    toast('Limit saved', 'ok');
+  } catch(e) { toast('Error: ' + e.message, 'err'); }
+}
+
+async function deleteBudgetLimit(id) {
+  try {
+    await dbDelete('budget_limits', id);
+    budgetLimits = budgetLimits.filter(l => l.id !== id);
+    renderBudgetLimits((typeof filteredTransactions !== 'undefined' && filteredTransactions.length) ? filteredTransactions : transactions);
+    toast('Limit removed', 'ok');
+  } catch(e) { toast('Error: ' + e.message, 'err'); }
+}
+  
 /* ── UpdateID ── */
 async function updateCategory(id, category) {
   try {
@@ -886,6 +1051,8 @@ function calcCompound() {
 /* ── INIT ── */
 loadTransactions();
 loadPools();
+loadBills();
+loadBudgetLimits();
 calcCompound();
 </script>
 </body>
