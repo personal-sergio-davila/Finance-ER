@@ -1111,10 +1111,25 @@ function exportSummaryReport() {
 
 /* ── UpdateID ── */
 async function updateCategory(id, category) {
+  const subMap = {
+    Food: 'Groceries', Debt: 'Payment', Utilities: 'Utility Bill',
+    Transportation: 'Gas', Personal: 'Shopping', Income: 'Paycheck',
+    Investing: 'Brokerage', Subscriptions: 'Streaming', Medical: 'Healthcare',
+    Health: 'Gym', Transfer: 'Internal Transfer', Other: 'Uncategorized'
+  };
+  const poolMap = {
+    Food: 'Essentials', Debt: 'Bills', Utilities: 'Bills',
+    Transportation: 'Essentials', Personal: 'Guilt-Free', Income: 'Income',
+    Investing: 'Investing', Subscriptions: 'Guilt-Free', Medical: 'Essentials',
+    Health: 'Guilt-Free', Transfer: 'Transfer', Other: 'Essentials'
+  };
+  const subcategory = subMap[category] || 'Uncategorized';
+  const pool = poolMap[category] || 'Essentials';
   try {
-    await dbUpdate('transactions', id, {category});
+    await dbUpdate('transactions', id, {category, subcategory, pool});
     const tx = transactions.find(t => t.id === id);
-    if (tx) tx.category = category;
+    if (tx) { tx.category = category; tx.subcategory = subcategory; tx.pool = pool; }
+    renderTxTable();
     toast('Category updated', 'ok');
   } catch(e) { toast('Error: ' + e.message, 'err'); }
 }
