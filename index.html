@@ -7,7 +7,6 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-/* ── DARK MODE (default) ── */
 :root {
   --bg: #090c10;
   --surface: #0d1117;
@@ -29,7 +28,6 @@
   --text3: #3d5470;
   --accent: #9dbdd8;
 }
-/* ── LIGHT MODE ── */
 @media (prefers-color-scheme: light) {
   :root {
     --bg: #f0f4f9;
@@ -53,7 +51,6 @@
     --accent: #1e3a58;
   }
 }
-/* ── MANUAL OVERRIDES ── */
 html[data-theme="light"] {
   --bg: #f0f4f9;
   --surface: #ffffff;
@@ -101,7 +98,6 @@ html[data-theme="dark"] {
 body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh;transition:background 0.2s,color 0.2s}
 .app{display:flex;flex-direction:column;min-height:100vh}
 
-/* NAV */
 nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:0;position:sticky;top:0;z-index:100}
 .nav-brand{font-family:'Instrument Serif',serif;font-size:1.2rem;color:var(--blue);padding:16px 20px 16px 0;border-right:1px solid var(--border);margin-right:8px;white-space:nowrap}
 .nav-brand span{color:var(--teal);font-style:italic}
@@ -112,22 +108,21 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24
 .tab-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
 .theme-btn{background:none;border:1px solid var(--border2);color:var(--text2);font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.06em;padding:6px 11px;border-radius:4px;cursor:pointer;white-space:nowrap;margin-left:10px;transition:all 0.15s}
 .theme-btn:hover{border-color:var(--blue2);color:var(--blue)}
+.db-dot{width:7px;height:7px;border-radius:50%;background:var(--text3);display:inline-block;margin-left:10px;transition:background 0.3s}
+.db-dot.connected{background:var(--green)}
+.db-dot.error{background:var(--red)}
 
-/* MAIN */
 main{flex:1;padding:32px 24px;max-width:1100px;width:100%;margin:0 auto}
 .tab-panel{display:none}
 .tab-panel.active{display:block}
 
-/* SECTION */
 .section-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--text3);margin-bottom:12px;margin-top:28px}
 .section-label:first-child{margin-top:0}
 
-/* GRID */
 .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
 .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
 .grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
 
-/* STAT CARD */
 .stat{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:16px 18px}
 .stat .lbl{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text3);margin-bottom:6px}
 .stat .val{font-family:'Instrument Serif',serif;font-size:1.8rem;color:var(--blue)}
@@ -136,7 +131,6 @@ main{flex:1;padding:32px 24px;max-width:1100px;width:100%;margin:0 auto}
 .stat.red .val{color:var(--red)}
 .stat.blue .val{color:var(--blue)}
 
-/* PANEL CARD */
 .panel{background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:16px}
 .panel-row{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid var(--border);font-size:0.8rem}
 .panel-row:last-child{border-bottom:none}
@@ -149,14 +143,12 @@ main{flex:1;padding:32px 24px;max-width:1100px;width:100%;margin:0 auto}
 .panel-row.total .amt{color:var(--green);font-size:1rem;font-family:'Instrument Serif',serif}
 .panel-row.income .amt{color:var(--green)}
 
-/* BAR */
 .bar-item{margin-bottom:12px}
 .bar-meta{display:flex;justify-content:space-between;font-size:0.72rem;margin-bottom:5px;color:var(--accent)}
 .bar-meta span:last-child{color:var(--text3)}
 .bar-track{height:7px;background:var(--border);border-radius:2px;overflow:hidden}
 .bar-fill{height:100%;border-radius:2px;transition:width 0.8s ease}
 
-/* TABLE */
 .tbl-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:0.78rem}
 th{text-align:left;padding:10px 14px;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);border-bottom:1px solid var(--border);font-weight:400}
@@ -178,7 +170,6 @@ tr:hover td{background:var(--surface)}
 .pos{color:var(--green)}
 .neg{color:var(--red)}
 
-/* IMPORT AREA */
 .drop-zone{border:1px dashed var(--border2);border-radius:6px;padding:32px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--surface)}
 .drop-zone:hover{border-color:var(--blue2);background:var(--card)}
 .drop-zone p{color:var(--text3);font-size:0.78rem;margin-bottom:8px}
@@ -188,8 +179,9 @@ tr:hover td{background:var(--surface)}
 .btn:hover{border-color:var(--blue2);color:var(--blue)}
 .btn-primary{background:var(--blue3);border-color:var(--blue2);color:var(--blue)}
 .btn-primary:hover{background:var(--blue2);color:#fff}
+.btn-danger{background:rgba(224,92,92,0.1);border-color:rgba(224,92,92,0.4);color:var(--red)}
+.btn-danger:hover{background:rgba(224,92,92,0.2)}
 
-/* COMPOUND CALC */
 .calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
 @media(max-width:680px){.calc-grid{grid-template-columns:1fr}}
 .input-group{margin-bottom:16px}
@@ -204,7 +196,6 @@ tr:hover td{background:var(--surface)}
 .rb-item .rb-lbl{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text3);margin-bottom:4px}
 .rb-item .rb-val{font-size:1rem;font-family:'Instrument Serif',serif;color:var(--accent)}
 
-/* POOL CARDS */
 .pool-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
 .pool-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:18px}
 .pool-card .p-icon{font-size:0.9rem;margin-bottom:8px;color:var(--text3)}
@@ -220,7 +211,6 @@ tr:hover td{background:var(--surface)}
 .pool-input-row button{background:var(--blue3);border:1px solid var(--blue2);color:var(--blue);font-family:'DM Mono',monospace;font-size:0.72rem;padding:6px 10px;border-radius:3px;cursor:pointer}
 .pool-input-row button:hover{background:var(--blue2);color:#fff}
 
-/* GOALS */
 .goal-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:18px;margin-bottom:12px}
 .goal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
 .goal-name{font-size:0.85rem;color:var(--accent)}
@@ -229,19 +219,16 @@ tr:hover td{background:var(--surface)}
 .goal-fill{height:100%;border-radius:2px}
 .goal-meta{display:flex;justify-content:space-between;font-size:0.65rem;color:var(--text3)}
 
-/* CHART */
 .chart-wrap{position:relative;width:100%;height:280px;margin-top:16px}
-
-/* SUMMARY NOTE */
 .note{font-size:0.7rem;color:var(--text3);line-height:1.8;border-top:1px solid var(--border);padding-top:16px;margin-top:24px}
 
-/* MONTH SWITCHER */
-.month-nav{display:flex;align-items:center;gap:12px;margin-bottom:20px}
-.month-nav button{background:none;border:1px solid var(--border);color:var(--text2);font-family:'DM Mono',monospace;font-size:0.78rem;padding:6px 12px;border-radius:3px;cursor:pointer}
-.month-nav button:hover{border-color:var(--blue2);color:var(--blue)}
-.month-nav .cur{font-size:0.9rem;color:var(--text);min-width:100px;text-align:center}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.72rem;padding:10px 16px;border-radius:5px;z-index:999;opacity:0;transition:opacity 0.2s;pointer-events:none}
+.toast.show{opacity:1}
+.toast.ok{border-color:var(--green);color:var(--green)}
+.toast.err{border-color:var(--red);color:var(--red)}
 
-/* RESPONSIVE */
+.loading{color:var(--text3);font-size:0.78rem;padding:24px 0;text-align:center}
+
 @media(max-width:600px){
   nav{padding:0 12px}
   main{padding:20px 12px}
@@ -262,78 +249,65 @@ tr:hover td{background:var(--surface)}
     <button class="tab-btn" onclick="switchTab('goals')">Goals</button>
     <button class="tab-btn" onclick="switchTab('calculator')">Calculator</button>
   </div>
+  <span class="db-dot" id="db-dot" title="Database status"></span>
   <button class="theme-btn" id="theme-btn" onclick="cycleTheme()">Auto</button>
 </nav>
 
 <main>
 
-<!-- ===== TRANSACTIONS ===== -->
+<!-- TRANSACTIONS -->
 <div id="tab-transactions" class="tab-panel active">
-
   <div class="section-label">Import</div>
   <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
     <p>Drop your bank CSV here, or click to browse</p>
-    <p class="hint">Supports: Post Date · Amount · Payee (standard bank export format)</p>
+    <p class="hint">Supports: Post Date · Amount · Payee — saves to database automatically</p>
   </div>
   <input type="file" id="file-input" accept=".csv" onchange="handleFile(event)">
-  <div style="margin-top:10px;display:flex;gap:8px">
+  <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
     <button class="btn btn-primary" onclick="loadSampleData()">Load sample data (April 2026)</button>
-    <button class="btn" onclick="clearTransactions()">Clear</button>
+    <button class="btn" onclick="exportCSV()">Export CSV</button>
+    <button class="btn btn-danger" onclick="clearAllTransactions()">Clear all</button>
   </div>
 
   <div class="section-label" style="margin-top:28px">Transactions <span id="tx-count" style="color:var(--text3);font-size:0.6rem;margin-left:6px"></span></div>
   <div class="tbl-wrap">
-    <table id="tx-table">
+    <table>
       <thead>
-        <tr>
-          <th>Date</th>
-          <th>Payee</th>
-          <th>Amount</th>
-          <th>Category</th>
-          <th>Subcategory</th>
-          <th>Pool</th>
-        </tr>
+        <tr><th>Date</th><th>Payee</th><th>Amount</th><th>Category</th><th>Subcategory</th><th>Pool</th><th></th></tr>
       </thead>
       <tbody id="tx-body">
-        <tr><td colspan="6" style="color:var(--text3);text-align:center;padding:32px">No transactions yet — import a CSV or load sample data</td></tr>
+        <tr><td colspan="7" class="loading">Loading transactions...</td></tr>
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- ===== SUMMARY ===== -->
+<!-- SUMMARY -->
 <div id="tab-summary" class="tab-panel">
-
   <div id="summary-empty" style="color:var(--text3);font-size:0.82rem;padding:32px 0">Load transactions first to see your summary.</div>
-
   <div id="summary-content" style="display:none">
-    <div class="section-label">This month</div>
+    <div class="section-label">This period</div>
     <div class="grid-4">
       <div class="stat green"><div class="lbl">Income</div><div class="val" id="s-income">$0</div></div>
       <div class="stat red"><div class="lbl">Expenses</div><div class="val" id="s-expenses">$0</div></div>
       <div class="stat"><div class="lbl">Net Cash Flow</div><div class="val" id="s-net">$0</div></div>
       <div class="stat blue"><div class="lbl">Transactions</div><div class="val" id="s-count">0</div></div>
     </div>
-
     <div class="section-label">Spending by category</div>
     <div id="cat-bars"></div>
-
     <div class="section-label">Spending breakdown</div>
     <div class="chart-wrap">
       <canvas id="pie-chart" role="img" aria-label="Pie chart of spending by category"></canvas>
     </div>
-
     <div class="section-label">By pool</div>
     <div class="grid-3" id="pool-summary-cards"></div>
   </div>
 </div>
 
-<!-- ===== POOLS ===== -->
+<!-- POOLS -->
 <div id="tab-pools" class="tab-panel">
-
-  <div class="section-label">Money pools — assign every dollar a job</div>
-  <div class="pool-grid" id="pools-grid"></div>
-
+  <div class="section-label">Money pools</div>
+  <div class="pool-grid" id="pools-grid"><div class="loading">Loading pools...</div></div>
   <div class="section-label" style="margin-top:28px">Add custom pool</div>
   <div style="display:flex;gap:8px;flex-wrap:wrap">
     <input type="text" id="new-pool-name" placeholder="Pool name" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 12px;border-radius:4px;outline:none;width:180px">
@@ -342,12 +316,10 @@ tr:hover td{background:var(--surface)}
   </div>
 </div>
 
-<!-- ===== GOALS ===== -->
+<!-- GOALS -->
 <div id="tab-goals" class="tab-panel">
-
   <div class="section-label">Financial goals</div>
-  <div id="goals-list"></div>
-
+  <div id="goals-list"><div class="loading">Loading goals...</div></div>
   <div class="section-label">Add goal</div>
   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
     <input type="text" id="new-goal-name" placeholder="Goal name (e.g. Pay off IRS)" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 12px;border-radius:4px;outline:none;width:240px">
@@ -355,28 +327,16 @@ tr:hover td{background:var(--surface)}
     <input type="number" id="new-goal-saved" placeholder="Saved so far $" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 12px;border-radius:4px;outline:none;width:150px">
     <button class="btn btn-primary" onclick="addGoal()">Add goal</button>
   </div>
-
 </div>
 
-<!-- ===== CALCULATOR ===== -->
+<!-- CALCULATOR -->
 <div id="tab-calculator" class="tab-panel">
-
   <div class="section-label">Compound interest calculator</div>
-
   <div class="calc-grid">
     <div>
-      <div class="input-group">
-        <label>Starting amount ($)</label>
-        <input type="number" id="c-principal" value="1000" oninput="calcCompound()">
-      </div>
-      <div class="input-group">
-        <label>Annual interest rate (%)</label>
-        <input type="number" id="c-rate" value="7" step="0.1" oninput="calcCompound()">
-      </div>
-      <div class="input-group">
-        <label>Years</label>
-        <input type="number" id="c-years" value="30" oninput="calcCompound()">
-      </div>
+      <div class="input-group"><label>Starting amount ($)</label><input type="number" id="c-principal" value="1000" oninput="calcCompound()"></div>
+      <div class="input-group"><label>Annual interest rate (%)</label><input type="number" id="c-rate" value="7" step="0.1" oninput="calcCompound()"></div>
+      <div class="input-group"><label>Years</label><input type="number" id="c-years" value="30" oninput="calcCompound()"></div>
       <div class="input-group">
         <label>Contribution frequency</label>
         <select id="c-freq" onchange="calcCompound()">
@@ -388,10 +348,7 @@ tr:hover td{background:var(--surface)}
           <option value="0">No contributions</option>
         </select>
       </div>
-      <div class="input-group">
-        <label>Contribution amount ($)</label>
-        <input type="number" id="c-contrib" value="278.40" step="0.01" oninput="calcCompound()">
-      </div>
+      <div class="input-group"><label>Contribution amount ($)</label><input type="number" id="c-contrib" value="278.40" step="0.01" oninput="calcCompound()"></div>
       <div class="input-group">
         <label>Compounds per year</label>
         <select id="c-compounds" onchange="calcCompound()">
@@ -404,11 +361,10 @@ tr:hover td{background:var(--surface)}
         </select>
       </div>
     </div>
-
     <div>
       <div class="section-label" style="margin-top:0">Result</div>
       <div class="result-big" id="c-result">$0</div>
-      <div class="result-sub" id="c-result-sub">final balance</div>
+      <div class="result-sub">final balance</div>
       <div class="result-breakdown">
         <div class="rb-item"><div class="rb-lbl">Starting principal</div><div class="rb-val" id="c-principal-out">$0</div></div>
         <div class="rb-item"><div class="rb-lbl">Total contributed</div><div class="rb-val" id="c-contributed">$0</div></div>
@@ -420,57 +376,85 @@ tr:hover td{background:var(--surface)}
       </div>
     </div>
   </div>
-
   <div class="section-label">Year-by-year breakdown</div>
   <div class="tbl-wrap">
     <table>
-      <thead>
-        <tr><th>Year</th><th>Balance</th><th>Total contributed</th><th>Interest earned</th><th>Annual gain</th></tr>
-      </thead>
+      <thead><tr><th>Year</th><th>Balance</th><th>Total contributed</th><th>Interest earned</th><th>Annual gain</th></tr></thead>
       <tbody id="c-table-body"></tbody>
     </table>
   </div>
-
-  <div class="note">
-    Formula: A = P(1 + r/n)^(nt) + PMT × [((1 + r/n)^(nt) − 1) / (r/n)] · All returns are reinvested. This is a projection tool — actual returns vary.
-  </div>
+  <div class="note">Formula: A = P(1 + r/n)^(nt) + PMT × [((1 + r/n)^(nt) − 1) / (r/n)] · All returns are reinvested. This is a projection tool — actual returns vary.</div>
 </div>
 
 </main>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
-/* ── THEME TOGGLE — only new code added ── */
+/* ── SUPABASE CONFIG ── */
+const SUPA_URL = 'https://ctccqiohmeljddybfmby.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0Y2NxaW9obWVsamRkeWJmbWJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MzA2MTcsImV4cCI6MjA5MjEwNjYxN30.VShTCAch-plBFp_49SIgeKkSveS38lHChRijqUN3JAM';
+
+const headers = {
+  'Content-Type': 'application/json',
+  'apikey': SUPA_KEY,
+  'Authorization': 'Bearer ' + SUPA_KEY,
+  'Prefer': 'return=representation'
+};
+
+async function dbGet(table, params) {
+  const q = params ? '?' + params : '';
+  const r = await fetch(SUPA_URL + '/rest/v1/' + table + q, { headers });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function dbInsert(table, data) {
+  const r = await fetch(SUPA_URL + '/rest/v1/' + table, { method:'POST', headers, body: JSON.stringify(data) });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function dbUpdate(table, id, data) {
+  const r = await fetch(SUPA_URL + '/rest/v1/' + table + '?id=eq.' + id, { method:'PATCH', headers, body: JSON.stringify(data) });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function dbDelete(table, id) {
+  const r = await fetch(SUPA_URL + '/rest/v1/' + table + '?id=eq.' + id, { method:'DELETE', headers });
+  if (!r.ok) throw new Error(await r.text());
+}
+
+/* ── TOAST ── */
+function toast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + (type || '');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.className = 'toast', 2500);
+}
+
+/* ── THEME ── */
 var themeState = 'auto';
 function cycleTheme() {
   var btn = document.getElementById('theme-btn');
-  if (themeState === 'auto') {
-    themeState = 'dark';
-    document.documentElement.setAttribute('data-theme', 'dark');
-    btn.textContent = 'Dark';
-  } else if (themeState === 'dark') {
-    themeState = 'light';
-    document.documentElement.setAttribute('data-theme', 'light');
-    btn.textContent = 'Light';
-  } else {
-    themeState = 'auto';
-    document.documentElement.removeAttribute('data-theme');
-    btn.textContent = 'Auto';
-  }
+  if (themeState === 'auto') { themeState = 'dark'; document.documentElement.setAttribute('data-theme','dark'); btn.textContent = 'Dark'; }
+  else if (themeState === 'dark') { themeState = 'light'; document.documentElement.setAttribute('data-theme','light'); btn.textContent = 'Light'; }
+  else { themeState = 'auto'; document.documentElement.removeAttribute('data-theme'); btn.textContent = 'Auto'; }
 }
 
-/* ── ORIGINAL JS — ZERO CHANGES ── */
+/* ── TABS ── */
 function switchTab(name) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   event.target.classList.add('active');
   if (name === 'summary') renderSummary();
-  if (name === 'pools') renderPools();
-  if (name === 'goals') renderGoals();
-  if (name === 'calculator') { calcCompound(); }
+  if (name === 'pools') loadPools();
+  if (name === 'goals') loadGoals();
+  if (name === 'calculator') calcCompound();
 }
 
+/* ── RULES / COLORS ── */
 const RULES = [
   {match:/h-e-b|heb/i, cat:'Food', sub:'Groceries', pool:'Essentials'},
   {match:/walmart|wm super|wal-mart/i, cat:'Food', sub:'Groceries', pool:'Essentials'},
@@ -490,40 +474,27 @@ const RULES = [
   {match:/doctor|clinic|urgent|hospital|pharmacy|cvs|walgreen/i, cat:'Medical', sub:'Healthcare', pool:'Essentials'},
   {match:/gym|planet fitness/i, cat:'Health', sub:'Gym', pool:'Guilt-Free'},
 ];
-
-const POOL_COLORS = {
-  'Bills':'#e05c5c',
-  'Essentials':'#5b9cf6',
-  'Guilt-Free':'#8b7fe8',
-  'Investing':'#3ec8c0',
-  'Sinking Fund':'#4db87a',
-  'Emergency':'#e07c5c',
-  'Transfer':'#5a5550',
-  'Income':'#4db87a',
-};
-
-const CAT_COLORS = {
-  'Food':'#e8a840',
-  'Debt':'#e87070',
-  'Utilities':'#5b9cf6',
-  'Transportation':'#4db87a',
-  'Personal':'#a07ee8',
-  'Income':'#3ec8c0',
-  'Investing':'#7ab4f8',
-  'Subscriptions':'#e870b8',
-  'Medical':'#70d8e8',
-  'Health':'#90d870',
-  'Transfer':'#888880',
-};
-
+const POOL_COLORS = {'Bills':'#e05c5c','Essentials':'#5b9cf6','Guilt-Free':'#8b7fe8','Investing':'#3ec8c0','Sinking Fund':'#4db87a','Emergency':'#e07c5c','Transfer':'#5a5550','Income':'#4db87a'};
+const CAT_COLORS = {'Food':'#e8a840','Debt':'#e87070','Utilities':'#5b9cf6','Transportation':'#4db87a','Personal':'#a07ee8','Income':'#3ec8c0','Investing':'#7ab4f8','Subscriptions':'#e870b8','Medical':'#70d8e8','Health':'#90d870','Transfer':'#888880'};
 function categorize(payee) {
-  for (const r of RULES) {
-    if (r.match.test(payee)) return {cat: r.cat, sub: r.sub, pool: r.pool};
-  }
+  for (const r of RULES) if (r.match.test(payee)) return {cat:r.cat, sub:r.sub, pool:r.pool};
   return {cat:'Other', sub:'Uncategorized', pool:'Essentials'};
 }
 
+/* ── TRANSACTIONS ── */
 let transactions = [];
+
+async function loadTransactions() {
+  try {
+    transactions = await dbGet('transactions', 'order=date.desc');
+    document.getElementById('db-dot').className = 'db-dot connected';
+    renderTxTable();
+  } catch(e) {
+    document.getElementById('db-dot').className = 'db-dot error';
+    toast('DB error: ' + e.message, 'err');
+    document.getElementById('tx-body').innerHTML = '<tr><td colspan="7" style="color:var(--red);text-align:center;padding:24px">Could not connect to database</td></tr>';
+  }
+}
 
 const SAMPLE = [
   {date:'04/01/2026',amount:-282.52,payee:'ATT  - PAYMENT'},
@@ -545,17 +516,45 @@ const SAMPLE = [
   {date:'04/16/2026',amount:-1.72,payee:'AMK JPMC STONE OAK SAN ANTONIO TX'},
 ];
 
-function loadSampleData() {
-  transactions = SAMPLE.map(t => {
-    const c = categorize(t.payee);
-    return {...t, ...c};
-  });
-  renderTxTable();
+async function loadSampleData() {
+  try {
+    const rows = SAMPLE.map(t => { const c = categorize(t.payee); return {...t,...c}; });
+    await dbInsert('transactions', rows);
+    toast('Sample data saved', 'ok');
+    loadTransactions();
+  } catch(e) { toast('Error: ' + e.message, 'err'); }
 }
 
-function clearTransactions() {
-  transactions = [];
-  renderTxTable();
+async function clearAllTransactions() {
+  if (!confirm('Delete ALL transactions from the database? This cannot be undone.')) return;
+  try {
+    await fetch(SUPA_URL + '/rest/v1/transactions?id=neq.00000000-0000-0000-0000-000000000000', { method:'DELETE', headers });
+    transactions = [];
+    renderTxTable();
+    toast('All transactions cleared', 'ok');
+  } catch(e) { toast('Error: ' + e.message, 'err'); }
+}
+
+async function deleteTransaction(id) {
+  try {
+    await dbDelete('transactions', id);
+    transactions = transactions.filter(t => t.id !== id);
+    renderTxTable();
+    toast('Deleted', 'ok');
+  } catch(e) { toast('Error: ' + e.message, 'err'); }
+}
+
+function exportCSV() {
+  if (!transactions.length) { toast('No transactions to export', 'err'); return; }
+  const cols = ['date','payee','amount','category','subcategory','pool'];
+  const header = cols.join(',');
+  const rows = transactions.map(t => cols.map(c => '"' + (t[c] || '') + '"').join(','));
+  const csv = [header, ...rows].join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'finance-er-transactions.csv';
+  a.click();
+  toast('Exported', 'ok');
 }
 
 function handleFile(e) {
@@ -570,64 +569,59 @@ const dz = document.getElementById('drop-zone');
 dz.addEventListener('dragover', e => { e.preventDefault(); dz.style.borderColor = 'var(--blue2)'; });
 dz.addEventListener('dragleave', () => { dz.style.borderColor = ''; });
 dz.addEventListener('drop', e => {
-  e.preventDefault();
-  dz.style.borderColor = '';
+  e.preventDefault(); dz.style.borderColor = '';
   const f = e.dataTransfer.files[0];
   if (f) { const r = new FileReader(); r.onload = ev => parseCSV(ev.target.result); r.readAsText(f); }
 });
 
-function parseCSV(text) {
+async function parseCSV(text) {
   const lines = text.trim().split('\n');
   const header = lines[0].toLowerCase().replace(/"/g,'');
   const cols = header.split(',');
   const di = cols.findIndex(c => c.includes('date'));
   const ai = cols.findIndex(c => c.includes('amount'));
   const pi = cols.findIndex(c => c.includes('payee') || c.includes('description') || c.includes('merchant'));
-  if (di < 0 || ai < 0 || pi < 0) { alert('Could not find Date, Amount, and Payee columns. Check your CSV format.'); return; }
-  transactions = [];
+  if (di < 0 || ai < 0 || pi < 0) { alert('Could not find Date, Amount, and Payee columns.'); return; }
+  const rows = [];
   for (let i = 1; i < lines.length; i++) {
     const row = lines[i].replace(/"/g,'').split(',');
     const amount = parseFloat(row[ai]);
     if (isNaN(amount)) continue;
     const payee = row.slice(pi).join(' ').trim();
-    const date = row[di].trim();
     const c = categorize(payee);
-    transactions.push({date, amount, payee, ...c});
+    rows.push({date: row[di].trim(), amount, payee, ...c});
   }
-  renderTxTable();
+  if (!rows.length) { toast('No valid rows found', 'err'); return; }
+  try {
+    await dbInsert('transactions', rows);
+    toast(rows.length + ' transactions saved', 'ok');
+    loadTransactions();
+  } catch(e) { toast('Error saving: ' + e.message, 'err'); }
 }
 
-const CAT_BADGE = c => {
-  const map = {Food:'badge-food',Debt:'badge-debt',Utilities:'badge-util',Transportation:'badge-trans',Personal:'badge-personal',Income:'badge-income',Investing:'badge-invest'};
-  const cls = map[c] || 'badge-food';
-  return `<span class="badge ${cls}">${c}</span>`;
-};
-
-const POOL_BADGE = p => {
-  const map = {'Bills':'badge-pool-bills','Guilt-Free':'badge-pool-gf','Sinking Fund':'badge-pool-sink','Investing':'badge-pool-invest','Essentials':'badge-util','Emergency':'badge-pool-bills','Income':'badge-income','Transfer':'badge-food'};
-  const cls = map[p] || 'badge-food';
-  return `<span class="badge ${cls}">${p}</span>`;
-};
+const CAT_BADGE = c => { const m={Food:'badge-food',Debt:'badge-debt',Utilities:'badge-util',Transportation:'badge-trans',Personal:'badge-personal',Income:'badge-income',Investing:'badge-invest'}; return `<span class="badge ${m[c]||'badge-food'}">${c}</span>`; };
+const POOL_BADGE = p => { const m={'Bills':'badge-pool-bills','Guilt-Free':'badge-pool-gf','Sinking Fund':'badge-pool-sink','Investing':'badge-pool-invest','Essentials':'badge-util','Emergency':'badge-pool-bills','Income':'badge-income','Transfer':'badge-food'}; return `<span class="badge ${m[p]||'badge-food'}">${p}</span>`; };
 
 function renderTxTable() {
   const tbody = document.getElementById('tx-body');
-  document.getElementById('tx-count').textContent = transactions.length ? `(${transactions.length})` : '';
+  document.getElementById('tx-count').textContent = transactions.length ? '(' + transactions.length + ')' : '';
   if (!transactions.length) {
-    tbody.innerHTML = '<tr><td colspan="6" style="color:var(--text3);text-align:center;padding:32px">No transactions yet</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:32px">No transactions yet — import a CSV or load sample data</td></tr>';
     return;
   }
   tbody.innerHTML = transactions.map(t => `
     <tr>
       <td style="color:var(--text3);white-space:nowrap">${t.date}</td>
-      <td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.payee}</td>
+      <td style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.payee}</td>
       <td class="${t.amount >= 0 ? 'pos' : 'neg'}">${t.amount >= 0 ? '+' : ''}$${Math.abs(t.amount).toFixed(2)}</td>
-      <td>${CAT_BADGE(t.cat)}</td>
-      <td style="color:var(--text2);font-size:0.75rem">${t.sub}</td>
+      <td>${CAT_BADGE(t.cat || t.category)}</td>
+      <td style="color:var(--text2);font-size:0.75rem">${t.sub || t.subcategory || ''}</td>
       <td>${POOL_BADGE(t.pool)}</td>
-    </tr>
-  `).join('');
+      <td><button onclick="deleteTransaction('${t.id}')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:0.9rem;padding:2px 6px" title="Delete">×</button></td>
+    </tr>`).join('');
 }
 
+/* ── SUMMARY ── */
 let pieChart = null;
 function renderSummary() {
   if (!transactions.length) {
@@ -637,8 +631,8 @@ function renderSummary() {
   }
   document.getElementById('summary-empty').style.display = 'none';
   document.getElementById('summary-content').style.display = 'block';
-
-  const income = transactions.filter(t => t.amount > 0 && t.cat !== 'Transfer').reduce((a,t) => a+t.amount, 0);
+  const getCat = t => t.cat || t.category || 'Other';
+  const income = transactions.filter(t => t.amount > 0 && getCat(t) !== 'Transfer').reduce((a,t) => a+t.amount, 0);
   const expenses = transactions.filter(t => t.amount < 0).reduce((a,t) => a+Math.abs(t.amount), 0);
   const net = income - expenses;
   document.getElementById('s-income').textContent = '$' + income.toFixed(2);
@@ -647,150 +641,156 @@ function renderSummary() {
   netEl.textContent = (net >= 0 ? '+' : '') + '$' + net.toFixed(2);
   netEl.style.color = net >= 0 ? 'var(--green)' : 'var(--red)';
   document.getElementById('s-count').textContent = transactions.length;
-
   const bycat = {};
-  transactions.filter(t => t.amount < 0).forEach(t => {
-    bycat[t.cat] = (bycat[t.cat] || 0) + Math.abs(t.amount);
-  });
+  transactions.filter(t => t.amount < 0).forEach(t => { const c = getCat(t); bycat[c] = (bycat[c]||0) + Math.abs(t.amount); });
   const sorted = Object.entries(bycat).sort((a,b) => b[1]-a[1]);
   const max = sorted[0]?.[1] || 1;
-  document.getElementById('cat-bars').innerHTML = sorted.map(([cat, amt]) => `
+  document.getElementById('cat-bars').innerHTML = sorted.map(([cat,amt]) => `
     <div class="bar-item">
       <div class="bar-meta"><span>${cat}</span><span>$${amt.toFixed(2)} · ${((amt/expenses)*100).toFixed(0)}%</span></div>
       <div class="bar-track"><div class="bar-fill" style="width:${(amt/max*100).toFixed(1)}%;background:${CAT_COLORS[cat]||'#888'}"></div></div>
-    </div>
-  `).join('');
-
+    </div>`).join('');
   if (pieChart) pieChart.destroy();
   const ctx = document.getElementById('pie-chart').getContext('2d');
   pieChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: sorted.map(([c]) => c),
-      datasets: [{
-        data: sorted.map(([,v]) => parseFloat(v.toFixed(2))),
-        backgroundColor: sorted.map(([c]) => CAT_COLORS[c] || '#888'),
-        borderWidth: 0,
-        hoverOffset: 8,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` $${ctx.raw.toFixed(2)}` } } },
-      cutout: '65%',
-    }
+    type:'doughnut',
+    data:{ labels:sorted.map(([c])=>c), datasets:[{data:sorted.map(([,v])=>parseFloat(v.toFixed(2))), backgroundColor:sorted.map(([c])=>CAT_COLORS[c]||'#888'), borderWidth:0, hoverOffset:8}] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>` $${ctx.raw.toFixed(2)}`}} }, cutout:'65%' }
   });
-
   const bypool = {};
-  transactions.filter(t => t.amount < 0).forEach(t => {
-    bypool[t.pool] = (bypool[t.pool] || 0) + Math.abs(t.amount);
-  });
-  document.getElementById('pool-summary-cards').innerHTML = Object.entries(bypool)
-    .sort((a,b)=>b[1]-a[1])
-    .map(([p,a]) => `
-      <div class="stat">
-        <div class="lbl">${p}</div>
-        <div class="val" style="color:${POOL_COLORS[p]||'var(--blue)'}">$${a.toFixed(2)}</div>
-        <div class="sub">${((a/expenses)*100).toFixed(0)}% of spending</div>
-      </div>
-    `).join('');
+  transactions.filter(t => t.amount < 0).forEach(t => { bypool[t.pool] = (bypool[t.pool]||0) + Math.abs(t.amount); });
+  document.getElementById('pool-summary-cards').innerHTML = Object.entries(bypool).sort((a,b)=>b[1]-a[1]).map(([p,a]) => `
+    <div class="stat"><div class="lbl">${p}</div><div class="val" style="color:${POOL_COLORS[p]||'var(--blue)'}">$${a.toFixed(2)}</div><div class="sub">${((a/expenses)*100).toFixed(0)}% of spending</div></div>`).join('');
 }
 
-let pools = [
-  {name:'Bills', saved:0, goal:1200, color:'#e05c5c'},
-  {name:'Emergency Fund', saved:0, goal:6000, color:'#e07c5c'},
-  {name:'Guilt-Free', saved:0, goal:400, color:'#8b7fe8'},
-  {name:'Vacation', saved:0, goal:2000, color:'#4db87a'},
-  {name:'Investing', saved:0, goal:5000, color:'#3ec8c0'},
-  {name:'IRS Payback', saved:0, goal:3000, color:'#5b9cf6'},
-];
+/* ── POOLS ── */
+let pools = [];
+async function loadPools() {
+  try {
+    pools = await dbGet('pools', 'order=name.asc');
+    if (!pools.length) {
+      const defaults = [
+        {name:'Bills', saved:0, goal:1200, color:'#e05c5c'},
+        {name:'Emergency Fund', saved:0, goal:6000, color:'#e07c5c'},
+        {name:'Guilt-Free', saved:0, goal:400, color:'#8b7fe8'},
+        {name:'Vacation', saved:0, goal:2000, color:'#4db87a'},
+        {name:'Investing', saved:0, goal:5000, color:'#3ec8c0'},
+        {name:'IRS Payback', saved:0, goal:3000, color:'#5b9cf6'},
+      ];
+      await dbInsert('pools', defaults);
+      pools = await dbGet('pools', 'order=name.asc');
+    }
+    renderPools();
+  } catch(e) { toast('Error loading pools: ' + e.message, 'err'); }
+}
 
 function renderPools() {
   document.getElementById('pools-grid').innerHTML = pools.map((p, i) => {
     const pct = Math.min(100, p.goal > 0 ? (p.saved / p.goal * 100) : 0);
-    return `
-      <div class="pool-card">
-        <div class="p-name">${p.name}</div>
-        <div class="p-val">$${p.saved.toFixed(2)}</div>
-        <div class="p-goal">Goal: $${p.goal.toLocaleString()}</div>
-        <div class="pool-track"><div class="pool-fill" style="width:${pct.toFixed(1)}%;background:${p.color}"></div></div>
-        <div class="p-pct">${pct.toFixed(0)}% of goal</div>
-        <div class="pool-input-row">
-          <input type="number" placeholder="Add $" id="pool-add-${i}" step="0.01">
-          <button onclick="addToPool(${i})">+</button>
-        </div>
+    return `<div class="pool-card">
+      <div class="p-name">${p.name}</div>
+      <div class="p-val">$${parseFloat(p.saved).toFixed(2)}</div>
+      <div class="p-goal">Goal: $${parseFloat(p.goal).toLocaleString()}</div>
+      <div class="pool-track"><div class="pool-fill" style="width:${pct.toFixed(1)}%;background:${p.color}"></div></div>
+      <div class="p-pct">${pct.toFixed(0)}% of goal</div>
+      <div class="pool-input-row">
+        <input type="number" placeholder="Add $" id="pool-add-${i}" step="0.01">
+        <button onclick="addToPool('${p.id}', ${i})">+</button>
       </div>
-    `;
+    </div>`;
   }).join('');
 }
 
-function addToPool(i) {
+async function addToPool(id, i) {
   const val = parseFloat(document.getElementById('pool-add-' + i).value);
   if (!val || isNaN(val)) return;
-  pools[i].saved = Math.max(0, pools[i].saved + val);
-  renderPools();
+  const newSaved = parseFloat(pools[i].saved) + val;
+  try {
+    await dbUpdate('pools', id, {saved: newSaved});
+    pools[i].saved = newSaved;
+    renderPools();
+    toast('Pool updated', 'ok');
+  } catch(e) { toast('Error: ' + e.message, 'err'); }
 }
 
-function addPool() {
+async function addPool() {
   const name = document.getElementById('new-pool-name').value.trim();
   const goal = parseFloat(document.getElementById('new-pool-goal').value) || 1000;
   if (!name) return;
-  pools.push({name, saved:0, goal, color:'#5b9cf6'});
-  document.getElementById('new-pool-name').value = '';
-  document.getElementById('new-pool-goal').value = '';
-  renderPools();
+  try {
+    const result = await dbInsert('pools', {name, saved:0, goal, color:'#5b9cf6'});
+    pools.push(result[0]);
+    renderPools();
+    document.getElementById('new-pool-name').value = '';
+    document.getElementById('new-pool-goal').value = '';
+    toast('Pool added', 'ok');
+  } catch(e) { toast('Error: ' + e.message, 'err'); }
 }
 
-let goals = [
-  {name:'Pay off IRS', total:3000, saved:0, color:'#e05c5c'},
-  {name:'Emergency Fund (3 months)', total:6000, saved:0, color:'#e07c5c'},
-  {name:'Vacation fund', total:2000, saved:0, color:'#4db87a'},
-  {name:'Investment starter ($5k)', total:5000, saved:0, color:'#3ec8c0'},
-];
+/* ── GOALS ── */
+let goals = [];
+async function loadGoals() {
+  try {
+    goals = await dbGet('goals', 'order=name.asc');
+    if (!goals.length) {
+      const defaults = [
+        {name:'Pay off IRS', total:3000, saved:0, color:'#e05c5c'},
+        {name:'Emergency Fund (3 months)', total:6000, saved:0, color:'#e07c5c'},
+        {name:'Vacation fund', total:2000, saved:0, color:'#4db87a'},
+        {name:'Investment starter ($5k)', total:5000, saved:0, color:'#3ec8c0'},
+      ];
+      await dbInsert('goals', defaults);
+      goals = await dbGet('goals', 'order=name.asc');
+    }
+    renderGoals();
+  } catch(e) { toast('Error loading goals: ' + e.message, 'err'); }
+}
 
 function renderGoals() {
   document.getElementById('goals-list').innerHTML = goals.map((g, i) => {
     const pct = Math.min(100, g.total > 0 ? (g.saved / g.total * 100) : 0);
     const remaining = Math.max(0, g.total - g.saved);
-    return `
-      <div class="goal-card">
-        <div class="goal-header">
-          <div class="goal-name">${g.name}</div>
-          <div class="goal-status">$${g.saved.toFixed(0)} / $${g.total.toLocaleString()}</div>
-        </div>
-        <div class="goal-track"><div class="goal-fill" style="width:${pct.toFixed(1)}%;background:${g.color}"></div></div>
-        <div class="goal-meta">
-          <span>${pct.toFixed(0)}% complete</span>
-          <span>$${remaining.toLocaleString()} remaining</span>
-        </div>
-        <div class="pool-input-row" style="margin-top:10px">
-          <input type="number" placeholder="Add progress $" id="goal-add-${i}" step="0.01">
-          <button onclick="addToGoal(${i})">+</button>
-        </div>
+    return `<div class="goal-card">
+      <div class="goal-header"><div class="goal-name">${g.name}</div><div class="goal-status">$${parseFloat(g.saved).toFixed(0)} / $${parseFloat(g.total).toLocaleString()}</div></div>
+      <div class="goal-track"><div class="goal-fill" style="width:${pct.toFixed(1)}%;background:${g.color}"></div></div>
+      <div class="goal-meta"><span>${pct.toFixed(0)}% complete</span><span>$${remaining.toLocaleString()} remaining</span></div>
+      <div class="pool-input-row" style="margin-top:10px">
+        <input type="number" placeholder="Add progress $" id="goal-add-${i}" step="0.01">
+        <button onclick="addToGoal('${g.id}', ${i})">+</button>
       </div>
-    `;
+    </div>`;
   }).join('');
 }
 
-function addToGoal(i) {
+async function addToGoal(id, i) {
   const val = parseFloat(document.getElementById('goal-add-' + i).value);
   if (!val || isNaN(val)) return;
-  goals[i].saved = Math.min(goals[i].total, goals[i].saved + val);
-  renderGoals();
+  const newSaved = Math.min(parseFloat(goals[i].total), parseFloat(goals[i].saved) + val);
+  try {
+    await dbUpdate('goals', id, {saved: newSaved});
+    goals[i].saved = newSaved;
+    renderGoals();
+    toast('Goal updated', 'ok');
+  } catch(e) { toast('Error: ' + e.message, 'err'); }
 }
 
-function addGoal() {
+async function addGoal() {
   const name = document.getElementById('new-goal-name').value.trim();
   const total = parseFloat(document.getElementById('new-goal-total').value) || 1000;
   const saved = parseFloat(document.getElementById('new-goal-saved').value) || 0;
   if (!name) return;
-  goals.push({name, total, saved, color:'#5b9cf6'});
-  document.getElementById('new-goal-name').value = '';
-  document.getElementById('new-goal-total').value = '';
-  document.getElementById('new-goal-saved').value = '';
-  renderGoals();
+  try {
+    const result = await dbInsert('goals', {name, total, saved, color:'#5b9cf6'});
+    goals.push(result[0]);
+    renderGoals();
+    document.getElementById('new-goal-name').value = '';
+    document.getElementById('new-goal-total').value = '';
+    document.getElementById('new-goal-saved').value = '';
+    toast('Goal added', 'ok');
+  } catch(e) { toast('Error: ' + e.message, 'err'); }
 }
 
+/* ── CALCULATOR ── */
 let growthChart = null;
 function calcCompound() {
   const P = parseFloat(document.getElementById('c-principal').value) || 0;
@@ -803,8 +803,8 @@ function calcCompound() {
   const periods = n * t;
   let finalBalance = P * Math.pow(1 + periodicRate, periods);
   if (freq > 0 && PMT > 0 && periodicRate > 0) {
-    const contribPerPeriod = PMT * freq / n;
-    finalBalance += contribPerPeriod * ((Math.pow(1 + periodicRate, periods) - 1) / periodicRate);
+    const cpp = PMT * freq / n;
+    finalBalance += cpp * ((Math.pow(1 + periodicRate, periods) - 1) / periodicRate);
   }
   const totalContrib = P + (freq > 0 ? PMT * freq * t : 0);
   const interest = finalBalance - totalContrib;
@@ -813,33 +813,19 @@ function calcCompound() {
   document.getElementById('c-contributed').textContent = '$' + Math.round(totalContrib).toLocaleString();
   document.getElementById('c-interest').textContent = '$' + Math.round(interest).toLocaleString();
   document.getElementById('c-pct').textContent = finalBalance > 0 ? ((interest / finalBalance) * 100).toFixed(1) + '%' : '0%';
-
   const labels = [], balances = [], contribs = [];
   for (let y = 0; y <= t; y++) {
-    const p2 = n * y;
-    let bal = P * Math.pow(1 + periodicRate, p2);
-    if (freq > 0 && PMT > 0 && periodicRate > 0) {
-      const cpp = PMT * freq / n;
-      bal += cpp * ((Math.pow(1 + periodicRate, p2) - 1) / periodicRate);
-    }
+    const p2 = n * y; let bal = P * Math.pow(1 + periodicRate, p2);
+    if (freq > 0 && PMT > 0 && periodicRate > 0) { const cpp = PMT * freq / n; bal += cpp * ((Math.pow(1 + periodicRate, p2) - 1) / periodicRate); }
     labels.push(y === 0 ? 'Now' : 'Yr ' + y);
     balances.push(Math.round(bal));
     contribs.push(Math.round(P + PMT * freq * y));
   }
-
-  const tbody = document.getElementById('c-table-body');
   const rows = [];
   for (let y = 1; y <= Math.min(t, 40); y++) {
-    rows.push(`<tr>
-      <td style="color:var(--text3)">${y}</td>
-      <td class="pos">$${balances[y].toLocaleString()}</td>
-      <td style="color:var(--text2)">$${contribs[y].toLocaleString()}</td>
-      <td style="color:var(--green)">$${(balances[y]-contribs[y]).toLocaleString()}</td>
-      <td style="color:var(--text3)">$${(balances[y]-(balances[y-1]||0)).toLocaleString()}</td>
-    </tr>`);
+    rows.push(`<tr><td style="color:var(--text3)">${y}</td><td class="pos">$${balances[y].toLocaleString()}</td><td style="color:var(--text2)">$${contribs[y].toLocaleString()}</td><td style="color:var(--green)">$${(balances[y]-contribs[y]).toLocaleString()}</td><td style="color:var(--text3)">$${(balances[y]-(balances[y-1]||0)).toLocaleString()}</td></tr>`);
   }
-  tbody.innerHTML = rows.join('');
-
+  document.getElementById('c-table-body').innerHTML = rows.join('');
   if (growthChart) growthChart.destroy();
   const ctx2 = document.getElementById('growth-chart').getContext('2d');
   const step = t > 20 ? Math.ceil(t / 15) : 1;
@@ -847,27 +833,22 @@ function calcCompound() {
   const sb = balances.filter((_,i) => i % step === 0);
   const sc = contribs.filter((_,i) => i % step === 0);
   growthChart = new Chart(ctx2, {
-    type: 'line',
-    data: {
-      labels: sl,
-      datasets: [
-        {label:'Balance', data:sb, borderColor:'#5b9cf6', backgroundColor:'rgba(91,156,246,0.12)', fill:true, tension:0.3, pointRadius:0, borderWidth:2},
-        {label:'Contributed', data:sc, borderColor:'#4db87a', backgroundColor:'rgba(77,184,122,0.08)', fill:true, tension:0.3, pointRadius:0, borderWidth:1.5, borderDash:[4,4]},
-      ]
-    },
-    options: {
-      responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ` $${ctx.raw.toLocaleString()}` } } },
-      scales:{
-        x:{ ticks:{color:'#3d5470',font:{size:10}}, grid:{color:'rgba(255,255,255,0.04)'} },
-        y:{ ticks:{color:'#3d5470',font:{size:10}, callback: v => '$'+Math.round(v/1000)+'k'}, grid:{color:'rgba(255,255,255,0.04)'} }
-      }
+    type:'line',
+    data:{ labels:sl, datasets:[
+      {label:'Balance', data:sb, borderColor:'#5b9cf6', backgroundColor:'rgba(91,156,246,0.12)', fill:true, tension:0.3, pointRadius:0, borderWidth:2},
+      {label:'Contributed', data:sc, borderColor:'#4db87a', backgroundColor:'rgba(77,184,122,0.08)', fill:true, tension:0.3, pointRadius:0, borderWidth:1.5, borderDash:[4,4]},
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>` $${ctx.raw.toLocaleString()}`}} },
+      scales:{ x:{ticks:{color:'#3d5470',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}}, y:{ticks:{color:'#3d5470',font:{size:10},callback:v=>'$'+Math.round(v/1000)+'k'},grid:{color:'rgba(255,255,255,0.04)'}} }
     }
   });
 }
 
-renderPools();
-renderGoals();
+/* ── INIT ── */
+loadTransactions();
+loadPools();
+loadGoals();
 calcCompound();
 </script>
 </body>
