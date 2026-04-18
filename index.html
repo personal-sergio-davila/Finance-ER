@@ -760,10 +760,12 @@ function renderPools() {
       <div class="pool-track"><div class="pool-fill" style="width:${pct.toFixed(1)}%;background:${p.color}"></div></div>
       <div class="p-pct">${pct.toFixed(0)}% of target</div>
       <div class="pool-input-row">
-        <input type="number" placeholder="Amount $" id="pool-add-${globalIdx}" step="0.01">
-        <button onclick="adjustItem('${p.id}','${p._type}',${globalIdx},1)" title="Add">+</button>
-        <button onclick="adjustItem('${p.id}','${p._type}',${globalIdx},-1)" title="Subtract" style="background:rgba(224,92,92,0.15);border-color:rgba(224,92,92,0.4);color:var(--red)">−</button>
-      </div>
+  <input type="number" placeholder="Amount $" id="pool-add-${globalIdx}" step="0.01">
+  <div style="display:flex;flex-direction:column;gap:4px">
+    <button onclick="adjustItem('${p.id}','${p._type}',${globalIdx},1)" title="Add" style="padding:4px 10px;line-height:1">+</button>
+    <button onclick="adjustItem('${p.id}','${p._type}',${globalIdx},-1)" title="Subtract" style="padding:4px 10px;line-height:1;background:rgba(224,92,92,0.15);border-color:rgba(224,92,92,0.4);color:var(--red)">−</button>
+  </div>
+</div>
     </div>`;
   }).join('');
 }
