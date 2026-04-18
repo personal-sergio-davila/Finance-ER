@@ -548,9 +548,12 @@ function switchTab(name) {
 
 /* ── RULES / COLORS ── */
 const RULES = [
+  {match:/internet transfer|online transfer|account transfer|funds transfer|ach transfer/i, cat:'Transfer', sub:'Internal Transfer', pool:'Transfer'},
+  {match:/zelle|cash app|venmo/i, cat:'Transfer', sub:'Internal Transfer', pool:'Transfer'},
+  {match:/\*\d{4}\s*(ck|sav|chk|checking|savings)/i, cat:'Transfer', sub:'Internal Transfer', pool:'Transfer'},
   {match:/h-e-b|heb/i, cat:'Food', sub:'Groceries', pool:'Essentials'},
   {match:/walmart|wm super|wal-mart/i, cat:'Food', sub:'Groceries', pool:'Essentials'},
-  {match:/mcdonald|taco bell|ihop|burger|wendy|chick-fil|sonic|whataburger|domino|pizza|chipotle/i, cat:'Food', sub:'Dining Out', pool:'Guilt-Free'},
+  {match:/mcdonald|taco bell|ihop|burger|wendy|chick-fil|sonic|whataburger|domino|pizza|chipotle/i, cat:'Food', sub:'Dining Out', pool:'Unplanned'},
   {match:/starbucks|dunkin|coffee/i, cat:'Food', sub:'Coffee', pool:'Guilt-Free'},
   {match:/shell|chevron|exxon|valero|murphy|gas|fuel/i, cat:'Transportation', sub:'Gas', pool:'Essentials'},
   {match:/att |at&t/i, cat:'Utilities', sub:'Phone', pool:'Bills'},
@@ -561,9 +564,6 @@ const RULES = [
   {match:/netflix|spotify|hulu|disney|apple\.com|prime video/i, cat:'Subscriptions', sub:'Streaming', pool:'Guilt-Free'},
   {match:/amazon/i, cat:'Personal', sub:'Shopping', pool:'Guilt-Free'},
   {match:/kohl|target|macy|nordstrom/i, cat:'Personal', sub:'Clothing', pool:'Guilt-Free'},
-  {match:/internet transfer|online transfer|account transfer|funds transfer|ach transfer/i, cat:'Transfer', sub:'Internal Transfer', pool:'Transfer'},
-  {match:/zelle|cash app|venmo/i, cat:'Transfer', sub:'Internal Transfer', pool:'Transfer'},
-  {match:/\*\d{4}\s*(ck|sav|chk|checking|savings)/i, cat:'Transfer', sub:'Internal Transfer', pool:'Transfer'},
   {match:/irs/i, cat:'Debt', sub:'IRS Payment', pool:'Bills'},
   {match:/doctor|clinic|urgent|hospital|pharmacy|cvs|walgreen/i, cat:'Medical', sub:'Healthcare', pool:'Essentials'},
   {match:/gym|planet fitness/i, cat:'Health', sub:'Gym', pool:'Guilt-Free'},
