@@ -209,7 +209,7 @@ tr:hover td{background:var(--surface)}
 .pool-track{height:5px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:6px}
 .pool-fill{height:100%;border-radius:2px;transition:width 0.8s ease}
 .pool-card .p-pct{font-size:0.62rem;color:var(--text3)}
-.pool-input-row{display:flex;gap:8px;margin-top:10px}
+.pool-input-row{display:flex;gap:8px;margin-top:10px;align-items:stretch;width:100%}
 .pool-input-row input{flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:0.75rem;padding:6px 8px;border-radius:3px;outline:none}
 .pool-input-row input:focus{border-color:var(--blue2)}
 .pool-input-row button{background:var(--blue3);border:1px solid var(--blue2);color:var(--blue);font-family:'DM Mono',monospace;font-size:0.72rem;padding:6px 10px;border-radius:3px;cursor:pointer}
@@ -861,10 +861,10 @@ function renderPools() {
       <div class="pool-track"><div class="pool-fill" style="width:${pct.toFixed(1)}%;background:${p.color}"></div></div>
       <div class="p-pct">${pct.toFixed(0)}% of target</div>
       <div class="pool-input-row">
-  <input type="number" placeholder="Amount $" id="pool-add-${globalIdx}" step="0.01">
-  <div style="display:flex;flex-direction:column;gap:4px">
-    <button onclick="adjustItem('${p.id}','${p._type}',${globalIdx},1)" title="Add" style="padding:4px 10px;line-height:1">+</button>
-    <button onclick="adjustItem('${p.id}','${p._type}',${globalIdx},-1)" title="Subtract" style="padding:4px 10px;line-height:1;background:rgba(224,92,92,0.15);border-color:rgba(224,92,92,0.4);color:var(--red)">−</button>
+  <input type="number" placeholder="Amount $" id="pool-add-${globalIdx}" step="0.01" style="min-width:0;flex:1">
+  <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
+    <button onclick="adjustItem('${p.id}','${p._type}',${globalIdx},1)" title="Add" style="padding:4px 8px;line-height:1;width:32px">+</button>
+    <button onclick="adjustItem('${p.id}','${p._type}',${globalIdx},-1)" title="Subtract" style="padding:4px 8px;line-height:1;width:32px;background:rgba(224,92,92,0.15);border-color:rgba(224,92,92,0.4);color:var(--red)">−</button>
   </div>
 </div>
     </div>`;
