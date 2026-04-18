@@ -757,7 +757,7 @@ function renderSummary() {
   document.getElementById('summary-content').style.display = 'block';
   const getCat = t => t.cat || t.category || 'Other';
   const income = data.filter(t => t.amount > 0 && getCat(t) !== 'Transfer').reduce((a,t) => a+t.amount, 0);
-  const expenses = data.filter(t => t.amount < 0).reduce((a,t) => a+Math.abs(t.amount), 0);
+  const expenses = data.filter(t => t.amount < 0 && getCat(t) !== 'Transfer').reduce((a,t) => a+Math.abs(t.amount), 0);
   const net = income - expenses;
   document.getElementById('s-income').textContent = '$' + income.toFixed(2);
   document.getElementById('s-expenses').textContent = '$' + expenses.toFixed(2);
