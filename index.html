@@ -522,7 +522,7 @@ const SAMPLE = [
 
 async function loadSampleData() {
   try {
-    const rows = SAMPLE.map(t => { const c = categorize(t.payee); return {...t,...c}; });
+    const rows = SAMPLE.map(t => { const c = categorize(t.payee); return {date:t.date, amount:t.amount, payee:t.payee, category:c.cat, subcategory:c.sub, pool:c.pool}; });
     await dbInsert('transactions', rows);
     toast('Sample data saved', 'ok');
     loadTransactions();
@@ -593,7 +593,7 @@ async function parseCSV(text) {
     if (isNaN(amount)) continue;
     const payee = row.slice(pi).join(' ').trim();
     const c = categorize(payee);
-    rows.push({date: row[di].trim(), amount, payee, ...c});
+    rows.push({date: row[di].trim(), amount, payee, category: c.cat, subcategory: c.sub, pool: c.pool});
   }
   if (!rows.length) { toast('No valid rows found', 'err'); return; }
   try {
