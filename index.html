@@ -249,8 +249,7 @@ tr:hover td{background:var(--surface)}
   <div class="nav-tabs">
     <button class="tab-btn active" onclick="switchTab('transactions')">Transactions</button>
     <button class="tab-btn" onclick="switchTab('summary')">Summary</button>
-    <button class="tab-btn" onclick="switchTab('pools')">Pools</button>
-    <button class="tab-btn" onclick="switchTab('goals')">Goals</button>
+    <button class="tab-btn" onclick="switchTab('pools')">Pools & Goals</button>
     <button class="tab-btn" onclick="switchTab('calculator')">Calculator</button>
   </div>
   <span class="db-dot" id="db-dot" title="Database status"></span>
@@ -273,6 +272,13 @@ tr:hover td{background:var(--surface)}
     <button class="btn btn-danger" onclick="clearAllTransactions()">Clear all</button>
   </div>
 
+  <div style="display:flex;align-items:center;gap:10px;margin-top:20px;margin-bottom:4px">
+  <select id="month-filter" onchange="applyMonthFilter()" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.75rem;padding:7px 10px;border-radius:4px;outline:none">
+    <option value="all">All months</option>
+  </select>
+  <span id="filter-count" style="font-size:0.65rem;color:var(--text3)"></span>
+</div>
+  
   <div class="section-label" style="margin-top:28px">Transactions <span id="tx-count" style="color:var(--text3);font-size:0.6rem;margin-left:6px"></span></div>
   <div class="tbl-wrap">
     <table>
@@ -308,28 +314,26 @@ tr:hover td{background:var(--surface)}
   </div>
 </div>
 
-<!-- POOLS -->
+<!-- POOLS & GOALS -->
 <div id="tab-pools" class="tab-panel">
-  <div class="section-label">Money pools</div>
-  <div class="pool-grid" id="pools-grid"><div class="loading">Loading pools...</div></div>
-  <div class="section-label" style="margin-top:28px">Add custom pool</div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <input type="text" id="new-pool-name" placeholder="Pool name" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 12px;border-radius:4px;outline:none;width:180px">
-    <input type="number" id="new-pool-goal" placeholder="Goal $" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 12px;border-radius:4px;outline:none;width:120px">
-    <button class="btn btn-primary" onclick="addPool()">Add pool</button>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;margin-top:0">
+    <span class="section-label" style="margin:0">Money pools & goals</span>
+    <div style="display:flex;gap:6px">
+      <button class="btn" id="filter-all" onclick="setPoolFilter('all')" style="font-size:0.65rem;padding:5px 10px;border-color:var(--blue2);color:var(--blue)">All</button>
+      <button class="btn" id="filter-pool" onclick="setPoolFilter('pool')" style="font-size:0.65rem;padding:5px 10px">Pools</button>
+      <button class="btn" id="filter-goal" onclick="setPoolFilter('goal')" style="font-size:0.65rem;padding:5px 10px">Goals</button>
+    </div>
   </div>
-</div>
-
-<!-- GOALS -->
-<div id="tab-goals" class="tab-panel">
-  <div class="section-label">Financial goals</div>
-  <div id="goals-list"><div class="loading">Loading goals...</div></div>
-  <div class="section-label">Add goal</div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
-    <input type="text" id="new-goal-name" placeholder="Goal name (e.g. Pay off IRS)" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 12px;border-radius:4px;outline:none;width:240px">
-    <input type="number" id="new-goal-total" placeholder="Total needed $" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 12px;border-radius:4px;outline:none;width:150px">
-    <input type="number" id="new-goal-saved" placeholder="Saved so far $" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 12px;border-radius:4px;outline:none;width:150px">
-    <button class="btn btn-primary" onclick="addGoal()">Add goal</button>
+  <div class="pool-grid" id="pools-grid"><div class="loading">Loading...</div></div>
+  <div class="section-label" style="margin-top:28px">Add new</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+    <select id="new-item-type" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 10px;border-radius:4px;outline:none">
+      <option value="pool">Pool</option>
+      <option value="goal">Goal</option>
+    </select>
+    <input type="text" id="new-pool-name" placeholder="Name" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 12px;border-radius:4px;outline:none;width:180px">
+    <input type="number" id="new-pool-goal" placeholder="Target $" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 12px;border-radius:4px;outline:none;width:120px">
+    <button class="btn btn-primary" onclick="addPoolOrGoal()">Add</button>
   </div>
 </div>
 
@@ -454,7 +458,6 @@ function switchTab(name) {
   event.target.classList.add('active');
   if (name === 'summary') renderSummary();
   if (name === 'pools') loadPools();
-  if (name === 'goals') loadGoals();
   if (name === 'calculator') calcCompound();
 }
 
@@ -492,12 +495,27 @@ async function loadTransactions() {
   try {
     transactions = await dbGet('transactions', 'order=date.desc');
     document.getElementById('db-dot').className = 'db-dot connected';
-    renderTxTable();
+    buildMonthFilter();
+    applyMonthFilter();
   } catch(e) {
     document.getElementById('db-dot').className = 'db-dot error';
     toast('DB error: ' + e.message, 'err');
     document.getElementById('tx-body').innerHTML = '<tr><td colspan="7" style="color:var(--red);text-align:center;padding:24px">Could not connect to database</td></tr>';
   }
+}
+
+function buildMonthFilter() {
+  const sel = document.getElementById('month-filter');
+  const months = [...new Set(transactions.map(t => t.date ? t.date.substring(0,7) : '').filter(Boolean))].sort().reverse();
+  sel.innerHTML = '<option value="all">All months</option>' + months.map(m => `<option value="${m}">${m}</option>`).join('');
+}
+
+let filteredTransactions = [];
+function applyMonthFilter() {
+  const val = document.getElementById('month-filter').value;
+  filteredTransactions = val === 'all' ? transactions : transactions.filter(t => t.date && t.date.includes(val));
+  document.getElementById('filter-count').textContent = filteredTransactions.length + ' transactions';
+  renderTxTable();
 }
 
 const SAMPLE = [
@@ -608,17 +626,21 @@ const POOL_BADGE = p => { const m={'Bills':'badge-pool-bills','Guilt-Free':'badg
 
 function renderTxTable() {
   const tbody = document.getElementById('tx-body');
-  document.getElementById('tx-count').textContent = transactions.length ? '(' + transactions.length + ')' : '';
+  document.getElementById('tx-count').textContent = filteredTransactions.length ? '(' + filteredTransactions.length + ')' : '';
   if (!transactions.length) {
     tbody.innerHTML = '<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:32px">No transactions yet — import a CSV or load sample data</td></tr>';
     return;
   }
-  tbody.innerHTML = transactions.map(t => `
+  tbody.innerHTML = filteredTransactions.map(t => `
     <tr>
       <td style="color:var(--text3);white-space:nowrap">${t.date}</td>
       <td style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.payee}</td>
       <td class="${t.amount >= 0 ? 'pos' : 'neg'}">${t.amount >= 0 ? '+' : ''}$${Math.abs(t.amount).toFixed(2)}</td>
-      <td>${CAT_BADGE(t.cat || t.category)}</td>
+      <td>
+  <select onchange="updateCategory('${t.id}', this.value)" style="background:var(--card);border:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:0.65rem;padding:3px 6px;border-radius:3px;cursor:pointer">
+    ${['Food','Debt','Utilities','Transportation','Personal','Income','Investing','Subscriptions','Medical','Health','Transfer','Other'].map(c=>`<option value="${c}" ${(t.category||t.cat)===c?'selected':''}>${c}</option>`).join('')}
+  </select>
+</td>
       <td style="color:var(--text2);font-size:0.75rem">${t.sub || t.subcategory || ''}</td>
       <td>${POOL_BADGE(t.pool)}</td>
       <td><button onclick="deleteTransaction('${t.id}')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:0.9rem;padding:2px 6px" title="Delete">×</button></td>
@@ -628,7 +650,8 @@ function renderTxTable() {
 /* ── SUMMARY ── */
 let pieChart = null;
 function renderSummary() {
-  if (!transactions.length) {
+  const data = (typeof filteredTransactions !== 'undefined' && filteredTransactions.length) ? filteredTransactions : transactions;
+  if (!data.length) {
     document.getElementById('summary-empty').style.display = 'block';
     document.getElementById('summary-content').style.display = 'none';
     return;
@@ -636,17 +659,17 @@ function renderSummary() {
   document.getElementById('summary-empty').style.display = 'none';
   document.getElementById('summary-content').style.display = 'block';
   const getCat = t => t.cat || t.category || 'Other';
-  const income = transactions.filter(t => t.amount > 0 && getCat(t) !== 'Transfer').reduce((a,t) => a+t.amount, 0);
-  const expenses = transactions.filter(t => t.amount < 0).reduce((a,t) => a+Math.abs(t.amount), 0);
+  const income = data.filter(t => t.amount > 0 && getCat(t) !== 'Transfer').reduce((a,t) => a+t.amount, 0);
+  const expenses = data.filter(t => t.amount < 0).reduce((a,t) => a+Math.abs(t.amount), 0);
   const net = income - expenses;
   document.getElementById('s-income').textContent = '$' + income.toFixed(2);
   document.getElementById('s-expenses').textContent = '$' + expenses.toFixed(2);
   const netEl = document.getElementById('s-net');
   netEl.textContent = (net >= 0 ? '+' : '') + '$' + net.toFixed(2);
   netEl.style.color = net >= 0 ? 'var(--green)' : 'var(--red)';
-  document.getElementById('s-count').textContent = transactions.length;
+  document.getElementById('s-count').textContent = data.length;
   const bycat = {};
-  transactions.filter(t => t.amount < 0).forEach(t => { const c = getCat(t); bycat[c] = (bycat[c]||0) + Math.abs(t.amount); });
+  data.filter(t => t.amount < 0).forEach(t => { const c = getCat(t); bycat[c] = (bycat[c]||0) + Math.abs(t.amount); });
   const sorted = Object.entries(bycat).sort((a,b) => b[1]-a[1]);
   const max = sorted[0]?.[1] || 1;
   document.getElementById('cat-bars').innerHTML = sorted.map(([cat,amt]) => `
@@ -662,18 +685,32 @@ function renderSummary() {
     options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>` $${ctx.raw.toFixed(2)}`}} }, cutout:'65%' }
   });
   const bypool = {};
-  transactions.filter(t => t.amount < 0).forEach(t => { bypool[t.pool] = (bypool[t.pool]||0) + Math.abs(t.amount); });
+  data.filter(t => t.amount < 0).forEach(t => { bypool[t.pool] = (bypool[t.pool]||0) + Math.abs(t.amount); });
   document.getElementById('pool-summary-cards').innerHTML = Object.entries(bypool).sort((a,b)=>b[1]-a[1]).map(([p,a]) => `
     <div class="stat"><div class="lbl">${p}</div><div class="val" style="color:${POOL_COLORS[p]||'var(--blue)'}">$${a.toFixed(2)}</div><div class="sub">${((a/expenses)*100).toFixed(0)}% of spending</div></div>`).join('');
 }
 
-/* ── POOLS ── */
-let pools = [];
+/* ── POOLS & GOALS (unified) ── */
+let allItems = [];
+let poolFilter = 'all';
+
+function setPoolFilter(f) {
+  poolFilter = f;
+  ['all','pool','goal'].forEach(x => {
+    const btn = document.getElementById('filter-'+x);
+    if (!btn) return;
+    btn.style.color = x === f ? 'var(--blue)' : '';
+    btn.style.borderColor = x === f ? 'var(--blue2)' : '';
+  });
+  renderPools();
+}
+
 async function loadPools() {
   try {
-    pools = await dbGet('pools', 'order=name.asc');
-    if (!pools.length) {
-      const defaults = [
+    let p = await dbGet('pools', 'order=name.asc');
+    let g = await dbGet('goals', 'order=name.asc');
+    if (!p.length) {
+      const pd = [
         {name:'Bills', saved:0, goal:1200, color:'#e05c5c'},
         {name:'Emergency Fund', saved:0, goal:6000, color:'#e07c5c'},
         {name:'Guilt-Free', saved:0, goal:400, color:'#8b7fe8'},
@@ -681,116 +718,111 @@ async function loadPools() {
         {name:'Investing', saved:0, goal:5000, color:'#3ec8c0'},
         {name:'IRS Payback', saved:0, goal:3000, color:'#5b9cf6'},
       ];
-      await dbInsert('pools', defaults);
-      pools = await dbGet('pools', 'order=name.asc');
+      await dbInsert('pools', pd);
+      p = await dbGet('pools', 'order=name.asc');
     }
-    renderPools();
-  } catch(e) { toast('Error loading pools: ' + e.message, 'err'); }
-}
-
-function renderPools() {
-  document.getElementById('pools-grid').innerHTML = pools.map((p, i) => {
-    const pct = Math.min(100, p.goal > 0 ? (p.saved / p.goal * 100) : 0);
-    return `<div class="pool-card">
-      <div class="p-name">${p.name}</div>
-      <div class="p-val">$${parseFloat(p.saved).toFixed(2)}</div>
-      <div class="p-goal">Goal: $${parseFloat(p.goal).toLocaleString()}</div>
-      <div class="pool-track"><div class="pool-fill" style="width:${pct.toFixed(1)}%;background:${p.color}"></div></div>
-      <div class="p-pct">${pct.toFixed(0)}% of goal</div>
-      <div class="pool-input-row">
-        <input type="number" placeholder="Add $" id="pool-add-${i}" step="0.01">
-        <button onclick="addToPool('${p.id}', ${i})">+</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-async function addToPool(id, i) {
-  const val = parseFloat(document.getElementById('pool-add-' + i).value);
-  if (!val || isNaN(val)) return;
-  const newSaved = parseFloat(pools[i].saved) + val;
-  try {
-    await dbUpdate('pools', id, {saved: newSaved});
-    pools[i].saved = newSaved;
-    renderPools();
-    toast('Pool updated', 'ok');
-  } catch(e) { toast('Error: ' + e.message, 'err'); }
-}
-
-async function addPool() {
-  const name = document.getElementById('new-pool-name').value.trim();
-  const goal = parseFloat(document.getElementById('new-pool-goal').value) || 1000;
-  if (!name) return;
-  try {
-    const result = await dbInsert('pools', {name, saved:0, goal, color:'#5b9cf6'});
-    pools.push(result[0]);
-    renderPools();
-    document.getElementById('new-pool-name').value = '';
-    document.getElementById('new-pool-goal').value = '';
-    toast('Pool added', 'ok');
-  } catch(e) { toast('Error: ' + e.message, 'err'); }
-}
-
-/* ── GOALS ── */
-let goals = [];
-async function loadGoals() {
-  try {
-    goals = await dbGet('goals', 'order=name.asc');
-    if (!goals.length) {
-      const defaults = [
+    if (!g.length) {
+      const gd = [
         {name:'Pay off IRS', total:3000, saved:0, color:'#e05c5c'},
         {name:'Emergency Fund (3 months)', total:6000, saved:0, color:'#e07c5c'},
         {name:'Vacation fund', total:2000, saved:0, color:'#4db87a'},
         {name:'Investment starter ($5k)', total:5000, saved:0, color:'#3ec8c0'},
       ];
-      await dbInsert('goals', defaults);
-      goals = await dbGet('goals', 'order=name.asc');
+      await dbInsert('goals', gd);
+      g = await dbGet('goals', 'order=name.asc');
     }
-    renderGoals();
-  } catch(e) { toast('Error loading goals: ' + e.message, 'err'); }
+    allItems = [
+      ...p.map(x => ({...x, _type:'pool', _target: x.goal})),
+      ...g.map(x => ({...x, _type:'goal', _target: x.total}))
+    ];
+    renderPools();
+  } catch(e) { toast('Error loading: ' + e.message, 'err'); }
 }
 
-function renderGoals() {
-  document.getElementById('goals-list').innerHTML = goals.map((g, i) => {
-    const pct = Math.min(100, g.total > 0 ? (g.saved / g.total * 100) : 0);
-    const remaining = Math.max(0, g.total - g.saved);
-    return `<div class="goal-card">
-      <div class="goal-header"><div class="goal-name">${g.name}</div><div class="goal-status">$${parseFloat(g.saved).toFixed(0)} / $${parseFloat(g.total).toLocaleString()}</div></div>
-      <div class="goal-track"><div class="goal-fill" style="width:${pct.toFixed(1)}%;background:${g.color}"></div></div>
-      <div class="goal-meta"><span>${pct.toFixed(0)}% complete</span><span>$${remaining.toLocaleString()} remaining</span></div>
-      <div class="pool-input-row" style="margin-top:10px">
-        <input type="number" placeholder="Add progress $" id="goal-add-${i}" step="0.01">
-        <button onclick="addToGoal('${g.id}', ${i})">+</button>
+function renderPools() {
+  const items = poolFilter === 'all' ? allItems : allItems.filter(x => x._type === poolFilter);
+  document.getElementById('pools-grid').innerHTML = items.map((p, i) => {
+    const target = parseFloat(p._target) || 0;
+    const saved = parseFloat(p.saved) || 0;
+    const pct = Math.min(100, target > 0 ? (saved / target * 100) : 0);
+    const typeBadge = `<span style="font-size:0.58rem;text-transform:uppercase;letter-spacing:0.08em;padding:2px 6px;border-radius:2px;background:${p._type==='goal'?'rgba(62,200,192,0.15)':'rgba(91,156,246,0.15)'};color:${p._type==='goal'?'var(--teal)':'var(--blue)'}">${p._type}</span>`;
+    const globalIdx = allItems.indexOf(p);
+    return `<div class="pool-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+        <div class="p-name">${p.name}</div>
+        <div style="display:flex;gap:4px;align-items:center">
+          ${typeBadge}
+          <button onclick="deleteItem('${p.id}','${p._type}',${globalIdx})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:1rem;padding:0 2px;line-height:1" title="Delete">×</button>
+        </div>
+      </div>
+      <div class="p-val">$${saved.toFixed(2)}</div>
+      <div class="p-goal">Target: $${target.toLocaleString()}</div>
+      <div class="pool-track"><div class="pool-fill" style="width:${pct.toFixed(1)}%;background:${p.color}"></div></div>
+      <div class="p-pct">${pct.toFixed(0)}% of target</div>
+      <div class="pool-input-row">
+        <input type="number" placeholder="Amount $" id="pool-add-${globalIdx}" step="0.01">
+        <button onclick="adjustItem('${p.id}','${p._type}',${globalIdx},1)" title="Add">+</button>
+        <button onclick="adjustItem('${p.id}','${p._type}',${globalIdx},-1)" title="Subtract" style="background:rgba(224,92,92,0.15);border-color:rgba(224,92,92,0.4);color:var(--red)">−</button>
       </div>
     </div>`;
   }).join('');
 }
 
-async function addToGoal(id, i) {
-  const val = parseFloat(document.getElementById('goal-add-' + i).value);
+async function adjustItem(id, type, idx, direction) {
+  const inp = document.getElementById('pool-add-' + idx);
+  const val = inp ? parseFloat(inp.value) : 0;
   if (!val || isNaN(val)) return;
-  const newSaved = Math.min(parseFloat(goals[i].total), parseFloat(goals[i].saved) + val);
+  const item = allItems[idx];
+  if (!item) return;
+  const newSaved = Math.max(0, parseFloat(item.saved) + (val * direction));
+  const table = type === 'goal' ? 'goals' : 'pools';
   try {
-    await dbUpdate('goals', id, {saved: newSaved});
-    goals[i].saved = newSaved;
-    renderGoals();
-    toast('Goal updated', 'ok');
+    await dbUpdate(table, id, {saved: newSaved});
+    item.saved = newSaved;
+    renderPools();
+    toast((direction > 0 ? 'Added' : 'Subtracted') + ' $' + val.toFixed(2), 'ok');
   } catch(e) { toast('Error: ' + e.message, 'err'); }
 }
 
-async function addGoal() {
-  const name = document.getElementById('new-goal-name').value.trim();
-  const total = parseFloat(document.getElementById('new-goal-total').value) || 1000;
-  const saved = parseFloat(document.getElementById('new-goal-saved').value) || 0;
-  if (!name) return;
+async function deleteItem(id, type, idx) {
+  if (!confirm('Delete this ' + type + '?')) return;
+  const table = type === 'goal' ? 'goals' : 'pools';
   try {
-    const result = await dbInsert('goals', {name, total, saved, color:'#5b9cf6'});
-    goals.push(result[0]);
-    renderGoals();
-    document.getElementById('new-goal-name').value = '';
-    document.getElementById('new-goal-total').value = '';
-    document.getElementById('new-goal-saved').value = '';
-    toast('Goal added', 'ok');
+    await dbDelete(table, id);
+    allItems.splice(idx, 1);
+    renderPools();
+    toast('Deleted', 'ok');
+  } catch(e) { toast('Error: ' + e.message, 'err'); }
+}
+
+async function addPoolOrGoal() {
+  const type = document.getElementById('new-item-type').value;
+  const name = document.getElementById('new-pool-name').value.trim();
+  const target = parseFloat(document.getElementById('new-pool-goal').value) || 1000;
+  if (!name) return;
+  const table = type === 'goal' ? 'goals' : 'pools';
+  const data = type === 'goal' ? {name, total:target, saved:0, color:'#5b9cf6'} : {name, goal:target, saved:0, color:'#5b9cf6'};
+  try {
+    const result = await dbInsert(table, data);
+    allItems.push({...result[0], _type:type, _target:target});
+    renderPools();
+    document.getElementById('new-pool-name').value = '';
+    document.getElementById('new-pool-goal').value = '';
+    toast(type + ' added', 'ok');
+  } catch(e) { toast('Error: ' + e.message, 'err'); }
+}
+
+function loadGoals() {}
+function renderGoals() {}
+function addGoal() {}
+
+/* ── UpdateID ── */
+async function updateCategory(id, category) {
+  try {
+    await dbUpdate('transactions', id, {category});
+    const tx = transactions.find(t => t.id === id);
+    if (tx) tx.category = category;
+    toast('Category updated', 'ok');
   } catch(e) { toast('Error: ' + e.message, 'err'); }
 }
 
@@ -852,7 +884,6 @@ function calcCompound() {
 /* ── INIT ── */
 loadTransactions();
 loadPools();
-loadGoals();
 calcCompound();
 </script>
 </body>
