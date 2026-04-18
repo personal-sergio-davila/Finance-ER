@@ -414,6 +414,10 @@ tr:hover td{background:var(--surface)}
       <div class="section-label" style="margin-top:0">Result</div>
       <div class="result-big" id="c-result">$0</div>
       <div class="result-sub">final balance</div>
+<div style="display:flex;gap:8px;align-items:center;margin-top:14px">
+  <input type="text" id="scenario-name" placeholder="Scenario name" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:7px 10px;border-radius:4px;outline:none;flex:1">
+  <button class="btn btn-primary" onclick="saveScenario()">Save scenario</button>
+</div>
       <div class="result-breakdown">
         <div class="rb-item"><div class="rb-lbl">Starting principal</div><div class="rb-val" id="c-principal-out">$0</div></div>
         <div class="rb-item"><div class="rb-lbl">Total contributed</div><div class="rb-val" id="c-contributed">$0</div></div>
@@ -432,8 +436,9 @@ tr:hover td{background:var(--surface)}
       <tbody id="c-table-body"></tbody>
     </table>
   </div>
-  <div class="note">Formula: A = P(1 + r/n)^(nt) + PMT × [((1 + r/n)^(nt) − 1) / (r/n)] · All returns are reinvested. This is a projection tool — actual returns vary.</div>
-</div>
+  <div class="section-label" style="margin-top:28px">Saved scenarios</div>
+<div id="scenarios-list" style="margin-bottom:24px"><div style="color:var(--text3);font-size:0.75rem">No saved scenarios yet.</div></div>
+<div class="note">Formula: A = P(1 + r/n)^(nt) + PMT × [((1 + r/n)^(nt) − 1) / (r/n)] · All returns are reinvested. This is a projection tool — actual returns vary.</div></div>
 
 <!-- SETTINGS -->
 <div id="tab-settings" class="tab-panel">
@@ -538,6 +543,7 @@ function switchTab(name) {
   if (name === 'calculator') calcCompound();
   if (name === 'bills') loadBills();
   if (name === 'settings') loadSettings();
+  if (name === 'calculator') { calcCompound(); loadScenarios(); }
 }
 
 /* ── RULES / COLORS ── */
@@ -1168,12 +1174,96 @@ function calcCompound() {
   });
 }
 
+/* ── CALCULATOR SCENARIOS ── */
+let scenarios = [];
+
+async function loadScenarios() {
+  try {
+    scenarios = await dbGet('calculator_scenarios', 'order=created_at.desc');
+    renderScenarios();
+  } catch(e) {}
+}
+
+function renderScenarios() {
+  const el = document.getElementById('scenarios-list');
+  if (!el) return;
+  if (!scenarios.length) { el.innerHTML = '<div style="color:var(--text3);font-size:0.75rem">No saved scenarios yet.</div>'; return; }
+  el.innerHTML = `
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Principal</th><th>Rate</th><th>Years</th><th>Contribution</th><th>Final Balance</th><th></th></tr></thead>
+        <tbody>
+          ${scenarios.map(s => `<tr>
+            <td style="color:var(--accent)">${s.name}</td>
+            <td style="color:var(--text2)">$${parseFloat(s.principal).toLocaleString()}</td>
+            <td style="color:var(--text2)">${s.rate}%</td>
+            <td style="color:var(--text2)">${s.years} yrs</td>
+            <td style="color:var(--text2)">$${parseFloat(s.contrib).toFixed(2)} × ${s.freq}x/yr</td>
+            <td class="pos">$${Math.round(s.final_balance).toLocaleString()}</td>
+            <td>
+              <button onclick="loadScenario('${s.id}')" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:0.72rem;padding:2px 6px">load</button>
+              <button onclick="deleteScenario('${s.id}')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:0.9rem;padding:2px 4px">×</button>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+async function saveScenario() {
+  const name = document.getElementById('scenario-name').value.trim();
+  if (!name) { toast('Enter a scenario name first', 'err'); return; }
+  const P = parseFloat(document.getElementById('c-principal').value) || 0;
+  const rate = parseFloat(document.getElementById('c-rate').value) || 0;
+  const years = parseInt(document.getElementById('c-years').value) || 0;
+  const freq = parseInt(document.getElementById('c-freq').value);
+  const contrib = parseFloat(document.getElementById('c-contrib').value) || 0;
+  const compounds = parseInt(document.getElementById('c-compounds').value);
+  const pr = (rate/100) / compounds;
+  const periods = compounds * years;
+  let final_balance = P * Math.pow(1 + pr, periods);
+  if (freq > 0 && contrib > 0 && pr > 0) {
+    const cpp = contrib * freq / compounds;
+    final_balance += cpp * ((Math.pow(1 + pr, periods) - 1) / pr);
+  }
+  try {
+    const result = await dbInsert('calculator_scenarios', {name, principal:P, rate, years, freq, contrib, compounds, final_balance});
+    scenarios.unshift(result[0]);
+    renderScenarios();
+    document.getElementById('scenario-name').value = '';
+    toast('Scenario saved', 'ok');
+  } catch(e) { toast('Error: ' + e.message, 'err'); }
+}
+
+function loadScenario(id) {
+  const s = scenarios.find(x => x.id === id);
+  if (!s) return;
+  document.getElementById('c-principal').value = s.principal;
+  document.getElementById('c-rate').value = s.rate;
+  document.getElementById('c-years').value = s.years;
+  document.getElementById('c-freq').value = s.freq;
+  document.getElementById('c-contrib').value = s.contrib;
+  document.getElementById('c-compounds').value = s.compounds;
+  calcCompound();
+  toast('Scenario loaded', 'ok');
+}
+
+async function deleteScenario(id) {
+  try {
+    await dbDelete('calculator_scenarios', id);
+    scenarios = scenarios.filter(s => s.id !== id);
+    renderScenarios();
+    toast('Deleted', 'ok');
+  } catch(e) { toast('Error: ' + e.message, 'err'); }
+}
+  
 /* ── INIT ── */
 loadTransactions();
 loadPools();
 loadBills();
 loadBudgetLimits();
 loadSettings();
+loadScenarios();
 calcCompound();
 </script>
 </body>
