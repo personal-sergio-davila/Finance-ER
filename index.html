@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finance-ER</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+/* ── DARK MODE (default) ── */
+:root {
+  --bg: #090c10;
+  --surface: #0d1117;
+  --card: #111820;
+  --border: #1e2a38;
+  --border2: #2a3a4e;
+  --blue: #5b9cf6;
+  --blue2: #3a72c4;
+  --blue3: #0f2040;
+  --blue4: #162840;
+  --green: #4db87a;
+  --green2: #1a5c3a;
+  --red: #e05c5c;
+  --red2: #3a1010;
+  --teal: #3ec8c0;
+  --purple: #8b7fe8;
+  --text: #dce8f5;
+  --text2: #6a8aaa;
+  --text3: #3d5470;
+  --accent: #9dbdd8;
+}
+/* ── LIGHT MODE ── */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f0f4f9;
+    --surface: #ffffff;
+    --card: #ffffff;
+    --border: #d0dce8;
+    --border2: #b0c4d8;
+    --blue: #2563b8;
+    --blue2: #1a4a90;
+    --blue3: #dbeafe;
+    --blue4: #e8f0fc;
+    --green: #1a7a48;
+    --green2: #d1fae5;
+    --red: #c0392b;
+    --red2: #fee2e2;
+    --teal: #0d8c86;
+    --purple: #5b44d4;
+    --text: #0f1f30;
+    --text2: #4a6280;
+    --text3: #7a94ae;
+    --accent: #1e3a58;
+  }
+}
+/* ── MANUAL OVERRIDES ── */
+html[data-theme="light"] {
+  --bg: #f0f4f9;
+  --surface: #ffffff;
+  --card: #ffffff;
+  --border: #d0dce8;
+  --border2: #b0c4d8;
+  --blue: #2563b8;
+  --blue2: #1a4a90;
+  --blue3: #dbeafe;
+  --blue4: #e8f0fc;
+  --green: #1a7a48;
+  --green2: #d1fae5;
+  --red: #c0392b;
+  --red2: #fee2e2;
+  --teal: #0d8c86;
+  --purple: #5b44d4;
+  --text: #0f1f30;
+  --text2: #4a6280;
+  --text3: #7a94ae;
+  --accent: #1e3a58;
+}
+html[data-theme="dark"] {
+  --bg: #090c10;
+  --surface: #0d1117;
+  --card: #111820;
+  --border: #1e2a38;
+  --border2: #2a3a4e;
+  --blue: #5b9cf6;
+  --blue2: #3a72c4;
+  --blue3: #0f2040;
+  --blue4: #162840;
+  --green: #4db87a;
+  --green2: #1a5c3a;
+  --red: #e05c5c;
+  --red2: #3a1010;
+  --teal: #3ec8c0;
+  --purple: #8b7fe8;
+  --text: #dce8f5;
+  --text2: #6a8aaa;
+  --text3: #3d5470;
+  --accent: #9dbdd8;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh;transition:background 0.2s,color 0.2s}
+.app{display:flex;flex-direction:column;min-height:100vh}
+
+/* NAV */
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:0;position:sticky;top:0;z-index:100}
+.nav-brand{font-family:'Instrument Serif',serif;font-size:1.2rem;color:var(--blue);padding:16px 20px 16px 0;border-right:1px solid var(--border);margin-right:8px;white-space:nowrap}
+.nav-brand span{color:var(--teal);font-style:italic}
+.nav-tabs{display:flex;gap:0;overflow-x:auto;scrollbar-width:none;flex:1}
+.nav-tabs::-webkit-scrollbar{display:none}
+.tab-btn{background:none;border:none;color:var(--text2);font-family:'DM Mono',monospace;font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;padding:18px 16px;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s;white-space:nowrap}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
+.theme-btn{background:none;border:1px solid var(--border2);color:var(--text2);font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.06em;padding:6px 11px;border-radius:4px;cursor:pointer;white-space:nowrap;margin-left:10px;transition:all 0.15s}
+.theme-btn:hover{border-color:var(--blue2);color:var(--blue)}
+
+/* MAIN */
+main{flex:1;padding:32px 24px;max-width:1100px;width:100%;margin:0 auto}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* SECTION */
+.section-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--text3);margin-bottom:12px;margin-top:28px}
+.section-label:first-child{margin-top:0}
+
+/* GRID */
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+
+/* STAT CARD */
+.stat{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:16px 18px}
+.stat .lbl{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text3);margin-bottom:6px}
+.stat .val{font-family:'Instrument Serif',serif;font-size:1.8rem;color:var(--blue)}
+.stat .sub{font-size:0.62rem;color:var(--text3);margin-top:3px}
+.stat.green .val{color:var(--green)}
+.stat.red .val{color:var(--red)}
+.stat.blue .val{color:var(--blue)}
+
+/* PANEL CARD */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:16px}
+.panel-row{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid var(--border);font-size:0.8rem}
+.panel-row:last-child{border-bottom:none}
+.panel-row .name{color:var(--accent)}
+.panel-row .note{color:var(--text3);font-size:0.62rem;margin-top:2px}
+.panel-row .amt{text-align:right;color:var(--text)}
+.panel-row .subt{color:var(--text3);font-size:0.62rem;text-align:right;margin-top:2px}
+.panel-row.total{background:var(--surface)}
+.panel-row.total .name{color:var(--blue)}
+.panel-row.total .amt{color:var(--green);font-size:1rem;font-family:'Instrument Serif',serif}
+.panel-row.income .amt{color:var(--green)}
+
+/* BAR */
+.bar-item{margin-bottom:12px}
+.bar-meta{display:flex;justify-content:space-between;font-size:0.72rem;margin-bottom:5px;color:var(--accent)}
+.bar-meta span:last-child{color:var(--text3)}
+.bar-track{height:7px;background:var(--border);border-radius:2px;overflow:hidden}
+.bar-fill{height:100%;border-radius:2px;transition:width 0.8s ease}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:0.78rem}
+th{text-align:left;padding:10px 14px;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);border-bottom:1px solid var(--border);font-weight:400}
+td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface)}
+.badge{display:inline-block;padding:2px 8px;border-radius:3px;font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase}
+.badge-food{background:rgba(232,168,64,0.18);color:#e8a840}
+.badge-debt{background:rgba(224,92,92,0.18);color:#e87070}
+.badge-util{background:rgba(91,156,246,0.18);color:#5b9cf6}
+.badge-trans{background:rgba(77,184,122,0.18);color:#4db87a}
+.badge-personal{background:rgba(139,127,232,0.18);color:#a07ee8}
+.badge-income{background:rgba(62,200,192,0.18);color:#3ec8c0}
+.badge-invest{background:rgba(91,156,246,0.22);color:#7ab4f8}
+.badge-pool-bills{background:rgba(224,92,92,0.18);color:#e87070}
+.badge-pool-gf{background:rgba(139,127,232,0.18);color:#a07ee8}
+.badge-pool-sink{background:rgba(77,184,122,0.18);color:#4db87a}
+.badge-pool-invest{background:rgba(62,200,192,0.18);color:#3ec8c0}
+.pos{color:var(--green)}
+.neg{color:var(--red)}
+
+/* IMPORT AREA */
+.drop-zone{border:1px dashed var(--border2);border-radius:6px;padding:32px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--surface)}
+.drop-zone:hover{border-color:var(--blue2);background:var(--card)}
+.drop-zone p{color:var(--text3);font-size:0.78rem;margin-bottom:8px}
+.drop-zone .hint{font-size:0.65rem;color:var(--text3)}
+#file-input{display:none}
+.btn{background:var(--card);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.72rem;padding:8px 16px;border-radius:4px;cursor:pointer;transition:all 0.15s;letter-spacing:0.05em}
+.btn:hover{border-color:var(--blue2);color:var(--blue)}
+.btn-primary{background:var(--blue3);border-color:var(--blue2);color:var(--blue)}
+.btn-primary:hover{background:var(--blue2);color:#fff}
+
+/* COMPOUND CALC */
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:680px){.calc-grid{grid-template-columns:1fr}}
+.input-group{margin-bottom:16px}
+.input-group label{display:block;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text3);margin-bottom:6px}
+.input-group input,.input-group select{width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.85rem;padding:9px 12px;border-radius:4px;outline:none;transition:border 0.15s}
+.input-group input:focus,.input-group select:focus{border-color:var(--blue2)}
+.input-group select option{background:var(--surface)}
+.result-big{font-family:'Instrument Serif',serif;font-size:3rem;color:var(--blue);line-height:1}
+.result-sub{font-size:0.72rem;color:var(--text3);margin-top:4px}
+.result-breakdown{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.rb-item{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:12px}
+.rb-item .rb-lbl{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text3);margin-bottom:4px}
+.rb-item .rb-val{font-size:1rem;font-family:'Instrument Serif',serif;color:var(--accent)}
+
+/* POOL CARDS */
+.pool-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.pool-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:18px}
+.pool-card .p-icon{font-size:0.9rem;margin-bottom:8px;color:var(--text3)}
+.pool-card .p-name{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:4px}
+.pool-card .p-val{font-family:'Instrument Serif',serif;font-size:1.5rem;color:var(--blue);margin-bottom:4px}
+.pool-card .p-goal{font-size:0.62rem;color:var(--text3);margin-bottom:8px}
+.pool-track{height:5px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:6px}
+.pool-fill{height:100%;border-radius:2px;transition:width 0.8s ease}
+.pool-card .p-pct{font-size:0.62rem;color:var(--text3)}
+.pool-input-row{display:flex;gap:8px;margin-top:10px}
+.pool-input-row input{flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:0.75rem;padding:6px 8px;border-radius:3px;outline:none}
+.pool-input-row input:focus{border-color:var(--blue2)}
+.pool-input-row button{background:var(--blue3);border:1px solid var(--blue2);color:var(--blue);font-family:'DM Mono',monospace;font-size:0.72rem;padding:6px 10px;border-radius:3px;cursor:pointer}
+.pool-input-row button:hover{background:var(--blue2);color:#fff}
+
+/* GOALS */
+.goal-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:18px;margin-bottom:12px}
+.goal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.goal-name{font-size:0.85rem;color:var(--accent)}
+.goal-status{font-size:0.62rem;color:var(--text3)}
+.goal-track{height:8px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:8px}
+.goal-fill{height:100%;border-radius:2px}
+.goal-meta{display:flex;justify-content:space-between;font-size:0.65rem;color:var(--text3)}
+
+/* CHART */
+.chart-wrap{position:relative;width:100%;height:280px;margin-top:16px}
+
+/* SUMMARY NOTE */
+.note{font-size:0.7rem;color:var(--text3);line-height:1.8;border-top:1px solid var(--border);padding-top:16px;margin-top:24px}
+
+/* MONTH SWITCHER */
+.month-nav{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.month-nav button{background:none;border:1px solid var(--border);color:var(--text2);font-family:'DM Mono',monospace;font-size:0.78rem;padding:6px 12px;border-radius:3px;cursor:pointer}
+.month-nav button:hover{border-color:var(--blue2);color:var(--blue)}
+.month-nav .cur{font-size:0.9rem;color:var(--text);min-width:100px;text-align:center}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+  nav{padding:0 12px}
+  main{padding:20px 12px}
+  .tab-btn{padding:16px 10px;font-size:0.65rem}
+  .nav-brand{font-size:1rem;padding:14px 12px 14px 0}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<nav>
+  <div class="nav-brand">Finance<span>-ER</span></div>
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('transactions')">Transactions</button>
+    <button class="tab-btn" onclick="switchTab('summary')">Summary</button>
+    <button class="tab-btn" onclick="switchTab('pools')">Pools</button>
+    <button class="tab-btn" onclick="switchTab('goals')">Goals</button>
+    <button class="tab-btn" onclick="switchTab('calculator')">Calculator</button>
+  </div>
+  <button class="theme-btn" id="theme-btn" onclick="cycleTheme()">Auto</button>
+</nav>
+
+<main>
+
+<!-- ===== TRANSACTIONS ===== -->
+<div id="tab-transactions" class="tab-panel active">
+
+  <div class="section-label">Import</div>
+  <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+    <p>Drop your bank CSV here, or click to browse</p>
+    <p class="hint">Supports: Post Date · Amount · Payee (standard bank export format)</p>
+  </div>
+  <input type="file" id="file-input" accept=".csv" onchange="handleFile(event)">
+  <div style="margin-top:10px;display:flex;gap:8px">
+    <button class="btn btn-primary" onclick="loadSampleData()">Load sample data (April 2026)</button>
+    <button class="btn" onclick="clearTransactions()">Clear</button>
+  </div>
+
+  <div class="section-label" style="margin-top:28px">Transactions <span id="tx-count" style="color:var(--text3);font-size:0.6rem;margin-left:6px"></span></div>
+  <div class="tbl-wrap">
+    <table id="tx-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Payee</th>
+          <th>Amount</th>
+          <th>Category</th>
+          <th>Subcategory</th>
+          <th>Pool</th>
+        </tr>
+      </thead>
+      <tbody id="tx-body">
+        <tr><td colspan="6" style="color:var(--text3);text-align:center;padding:32px">No transactions yet — import a CSV or load sample data</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== SUMMARY ===== -->
+<div id="tab-summary" class="tab-panel">
+
+  <div id="summary-empty" style="color:var(--text3);font-size:0.82rem;padding:32px 0">Load transactions first to see your summary.</div>
+
+  <div id="summary-content" style="display:none">
+    <div class="section-label">This month</div>
+    <div class="grid-4">
+      <div class="stat green"><div class="lbl">Income</div><div class="val" id="s-income">$0</div></div>
+      <div class="stat red"><div class="lbl">Expenses</div><div class="val" id="s-expenses">$0</div></div>
+      <div class="stat"><div class="lbl">Net Cash Flow</div><div class="val" id="s-net">$0</div></div>
+      <div class="stat blue"><div class="lbl">Transactions</div><div class="val" id="s-count">0</div></div>
+    </div>
+
+    <div class="section-label">Spending by category</div>
+    <div id="cat-bars"></div>
+
+    <div class="section-label">Spending breakdown</div>
+    <div class="chart-wrap">
+      <canvas id="pie-chart" role="img" aria-label="Pie chart of spending by category"></canvas>
+    </div>
+
+    <div class="section-label">By pool</div>
+    <div class="grid-3" id="pool-summary-cards"></div>
+  </div>
+</div>
+
+<!-- ===== POOLS ===== -->
+<div id="tab-pools" class="tab-panel">
+
+  <div class="section-label">Money pools — assign every dollar a job</div>
+  <div class="pool-grid" id="pools-grid"></div>
+
+  <div class="section-label" style="margin-top:28px">Add custom pool</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <input type="text" id="new-pool-name" placeholder="Pool name" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 12px;border-radius:4px;outline:none;width:180px">
+    <input type="number" id="new-pool-goal" placeholder="Goal $" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 12px;border-radius:4px;outline:none;width:120px">
+    <button class="btn btn-primary" onclick="addPool()">Add pool</button>
+  </div>
+</div>
+
+<!-- ===== GOALS ===== -->
+<div id="tab-goals" class="tab-panel">
+
+  <div class="section-label">Financial goals</div>
+  <div id="goals-list"></div>
+
+  <div class="section-label">Add goal</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+    <input type="text" id="new-goal-name" placeholder="Goal name (e.g. Pay off IRS)" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 12px;border-radius:4px;outline:none;width:240px">
+    <input type="number" id="new-goal-total" placeholder="Total needed $" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 12px;border-radius:4px;outline:none;width:150px">
+    <input type="number" id="new-goal-saved" placeholder="Saved so far $" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 12px;border-radius:4px;outline:none;width:150px">
+    <button class="btn btn-primary" onclick="addGoal()">Add goal</button>
+  </div>
+
+</div>
+
+<!-- ===== CALCULATOR ===== -->
+<div id="tab-calculator" class="tab-panel">
+
+  <div class="section-label">Compound interest calculator</div>
+
+  <div class="calc-grid">
+    <div>
+      <div class="input-group">
+        <label>Starting amount ($)</label>
+        <input type="number" id="c-principal" value="1000" oninput="calcCompound()">
+      </div>
+      <div class="input-group">
+        <label>Annual interest rate (%)</label>
+        <input type="number" id="c-rate" value="7" step="0.1" oninput="calcCompound()">
+      </div>
+      <div class="input-group">
+        <label>Years</label>
+        <input type="number" id="c-years" value="30" oninput="calcCompound()">
+      </div>
+      <div class="input-group">
+        <label>Contribution frequency</label>
+        <select id="c-freq" onchange="calcCompound()">
+          <option value="26">Bi-weekly (26x/year)</option>
+          <option value="12">Monthly (12x/year)</option>
+          <option value="24">Twice monthly (24x/year)</option>
+          <option value="52">Weekly (52x/year)</option>
+          <option value="1">Annually (1x/year)</option>
+          <option value="0">No contributions</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Contribution amount ($)</label>
+        <input type="number" id="c-contrib" value="278.40" step="0.01" oninput="calcCompound()">
+      </div>
+      <div class="input-group">
+        <label>Compounds per year</label>
+        <select id="c-compounds" onchange="calcCompound()">
+          <option value="12" selected>Monthly (12)</option>
+          <option value="26">Bi-weekly (26)</option>
+          <option value="52">Weekly (52)</option>
+          <option value="365">Daily (365)</option>
+          <option value="4">Quarterly (4)</option>
+          <option value="1">Annually (1)</option>
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label" style="margin-top:0">Result</div>
+      <div class="result-big" id="c-result">$0</div>
+      <div class="result-sub" id="c-result-sub">final balance</div>
+      <div class="result-breakdown">
+        <div class="rb-item"><div class="rb-lbl">Starting principal</div><div class="rb-val" id="c-principal-out">$0</div></div>
+        <div class="rb-item"><div class="rb-lbl">Total contributed</div><div class="rb-val" id="c-contributed">$0</div></div>
+        <div class="rb-item"><div class="rb-lbl">Interest earned</div><div class="rb-val" id="c-interest" style="color:var(--green)">$0</div></div>
+        <div class="rb-item"><div class="rb-lbl">Interest % of total</div><div class="rb-val" id="c-pct">0%</div></div>
+      </div>
+      <div class="chart-wrap" style="height:200px;margin-top:20px">
+        <canvas id="growth-chart" role="img" aria-label="Line chart showing portfolio growth over time"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Year-by-year breakdown</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>Year</th><th>Balance</th><th>Total contributed</th><th>Interest earned</th><th>Annual gain</th></tr>
+      </thead>
+      <tbody id="c-table-body"></tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    Formula: A = P(1 + r/n)^(nt) + PMT × [((1 + r/n)^(nt) − 1) / (r/n)] · All returns are reinvested. This is a projection tool — actual returns vary.
+  </div>
+</div>
+
+</main>
+</div>
+
+<script>
+/* ── THEME TOGGLE — only new code added ── */
+var themeState = 'auto';
+function cycleTheme() {
+  var btn = document.getElementById('theme-btn');
+  if (themeState === 'auto') {
+    themeState = 'dark';
+    document.documentElement.setAttribute('data-theme', 'dark');
+    btn.textContent = 'Dark';
+  } else if (themeState === 'dark') {
+    themeState = 'light';
+    document.documentElement.setAttribute('data-theme', 'light');
+    btn.textContent = 'Light';
+  } else {
+    themeState = 'auto';
+    document.documentElement.removeAttribute('data-theme');
+    btn.textContent = 'Auto';
+  }
+}
+
+/* ── ORIGINAL JS — ZERO CHANGES ── */
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'summary') renderSummary();
+  if (name === 'pools') renderPools();
+  if (name === 'goals') renderGoals();
+  if (name === 'calculator') { calcCompound(); }
+}
+
+const RULES = [
+  {match:/h-e-b|heb/i, cat:'Food', sub:'Groceries', pool:'Essentials'},
+  {match:/walmart|wm super|wal-mart/i, cat:'Food', sub:'Groceries', pool:'Essentials'},
+  {match:/mcdonald|taco bell|ihop|burger|wendy|chick-fil|sonic|whataburger|domino|pizza|chipotle/i, cat:'Food', sub:'Dining Out', pool:'Guilt-Free'},
+  {match:/starbucks|dunkin|coffee/i, cat:'Food', sub:'Coffee', pool:'Guilt-Free'},
+  {match:/shell|chevron|exxon|valero|murphy|gas|fuel/i, cat:'Transportation', sub:'Gas', pool:'Essentials'},
+  {match:/att |at&t/i, cat:'Utilities', sub:'Phone', pool:'Bills'},
+  {match:/xfinity|spectrum|cox|internet|comcast/i, cat:'Utilities', sub:'Internet', pool:'Bills'},
+  {match:/affirm/i, cat:'Debt', sub:'Buy Now Pay Later', pool:'Bills'},
+  {match:/webull|robinhood|fidelity|vanguard|schwab|astra/i, cat:'Investing', sub:'Brokerage', pool:'Investing'},
+  {match:/payroll|direct dep|glowtouch/i, cat:'Income', sub:'Paycheck', pool:'Income'},
+  {match:/netflix|spotify|hulu|disney|apple\.com|prime video/i, cat:'Subscriptions', sub:'Streaming', pool:'Guilt-Free'},
+  {match:/amazon/i, cat:'Personal', sub:'Shopping', pool:'Guilt-Free'},
+  {match:/kohl|target|macy|nordstrom/i, cat:'Personal', sub:'Clothing', pool:'Guilt-Free'},
+  {match:/transfer|zelle/i, cat:'Transfer', sub:'Internal Transfer', pool:'Transfer'},
+  {match:/irs/i, cat:'Debt', sub:'IRS Payment', pool:'Bills'},
+  {match:/doctor|clinic|urgent|hospital|pharmacy|cvs|walgreen/i, cat:'Medical', sub:'Healthcare', pool:'Essentials'},
+  {match:/gym|planet fitness/i, cat:'Health', sub:'Gym', pool:'Guilt-Free'},
+];
+
+const POOL_COLORS = {
+  'Bills':'#e05c5c',
+  'Essentials':'#5b9cf6',
+  'Guilt-Free':'#8b7fe8',
+  'Investing':'#3ec8c0',
+  'Sinking Fund':'#4db87a',
+  'Emergency':'#e07c5c',
+  'Transfer':'#5a5550',
+  'Income':'#4db87a',
+};
+
+const CAT_COLORS = {
+  'Food':'#e8a840',
+  'Debt':'#e87070',
+  'Utilities':'#5b9cf6',
+  'Transportation':'#4db87a',
+  'Personal':'#a07ee8',
+  'Income':'#3ec8c0',
+  'Investing':'#7ab4f8',
+  'Subscriptions':'#e870b8',
+  'Medical':'#70d8e8',
+  'Health':'#90d870',
+  'Transfer':'#888880',
+};
+
+function categorize(payee) {
+  for (const r of RULES) {
+    if (r.match.test(payee)) return {cat: r.cat, sub: r.sub, pool: r.pool};
+  }
+  return {cat:'Other', sub:'Uncategorized', pool:'Essentials'};
+}
+
+let transactions = [];
+
+const SAMPLE = [
+  {date:'04/01/2026',amount:-282.52,payee:'ATT  - PAYMENT'},
+  {date:'04/01/2026',amount:-19.56,payee:'McDonalds 25502 18146 BLANCO RD SAN ANTONIO TX'},
+  {date:'04/02/2026',amount:-17.17,payee:'H-E-B #658 SAN ANTONIO TX'},
+  {date:'04/03/2026',amount:-52.73,payee:'WWW.KOHLS.COM'},
+  {date:'04/04/2026',amount:14,payee:'Internet Transfer from *3050 CK'},
+  {date:'04/05/2026',amount:-28.68,payee:'SHELL OIL 12832 BLANCO RD SAN ANTONIO TX'},
+  {date:'04/05/2026',amount:-33.06,payee:'TACO BELL 73382 NORTH US HWY SAN ANTONIO TX'},
+  {date:'04/05/2026',amount:-41.71,payee:'WM SUPERCENTER 1515 N LOOP 1604 E SAN ANTONIO TX'},
+  {date:'04/05/2026',amount:130,payee:'Internet Transfer from *8135 CK'},
+  {date:'04/05/2026',amount:20,payee:'Internet Transfer from *3050 CK'},
+  {date:'04/08/2026',amount:-115.12,payee:'AFFIRM PAY JAZR33 SAN FRANCISCO CA'},
+  {date:'04/08/2026',amount:15.89,payee:'ASTRAWebull 595 Pacific Ave San Francisco CA'},
+  {date:'04/09/2026',amount:97.97,payee:'GLOWTOUCH LLC - PAYROLL'},
+  {date:'04/09/2026',amount:-14.56,payee:'AFFIRM PAY NETRJ2 SAN FRANCISCO CA'},
+  {date:'04/13/2026',amount:-66.61,payee:'H-E-B #463 SAN ANTONIO TX'},
+  {date:'04/13/2026',amount:-30.69,payee:'IHOP #3765 203 N Loop 1604 W SAN ANTONIO TX'},
+  {date:'04/16/2026',amount:-1.72,payee:'AMK JPMC STONE OAK SAN ANTONIO TX'},
+];
+
+function loadSampleData() {
+  transactions = SAMPLE.map(t => {
+    const c = categorize(t.payee);
+    return {...t, ...c};
+  });
+  renderTxTable();
+}
+
+function clearTransactions() {
+  transactions = [];
+  renderTxTable();
+}
+
+function handleFile(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = ev => parseCSV(ev.target.result);
+  reader.readAsText(f);
+}
+
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.style.borderColor = 'var(--blue2)'; });
+dz.addEventListener('dragleave', () => { dz.style.borderColor = ''; });
+dz.addEventListener('drop', e => {
+  e.preventDefault();
+  dz.style.borderColor = '';
+  const f = e.dataTransfer.files[0];
+  if (f) { const r = new FileReader(); r.onload = ev => parseCSV(ev.target.result); r.readAsText(f); }
+});
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const header = lines[0].toLowerCase().replace(/"/g,'');
+  const cols = header.split(',');
+  const di = cols.findIndex(c => c.includes('date'));
+  const ai = cols.findIndex(c => c.includes('amount'));
+  const pi = cols.findIndex(c => c.includes('payee') || c.includes('description') || c.includes('merchant'));
+  if (di < 0 || ai < 0 || pi < 0) { alert('Could not find Date, Amount, and Payee columns. Check your CSV format.'); return; }
+  transactions = [];
+  for (let i = 1; i < lines.length; i++) {
+    const row = lines[i].replace(/"/g,'').split(',');
+    const amount = parseFloat(row[ai]);
+    if (isNaN(amount)) continue;
+    const payee = row.slice(pi).join(' ').trim();
+    const date = row[di].trim();
+    const c = categorize(payee);
+    transactions.push({date, amount, payee, ...c});
+  }
+  renderTxTable();
+}
+
+const CAT_BADGE = c => {
+  const map = {Food:'badge-food',Debt:'badge-debt',Utilities:'badge-util',Transportation:'badge-trans',Personal:'badge-personal',Income:'badge-income',Investing:'badge-invest'};
+  const cls = map[c] || 'badge-food';
+  return `<span class="badge ${cls}">${c}</span>`;
+};
+
+const POOL_BADGE = p => {
+  const map = {'Bills':'badge-pool-bills','Guilt-Free':'badge-pool-gf','Sinking Fund':'badge-pool-sink','Investing':'badge-pool-invest','Essentials':'badge-util','Emergency':'badge-pool-bills','Income':'badge-income','Transfer':'badge-food'};
+  const cls = map[p] || 'badge-food';
+  return `<span class="badge ${cls}">${p}</span>`;
+};
+
+function renderTxTable() {
+  const tbody = document.getElementById('tx-body');
+  document.getElementById('tx-count').textContent = transactions.length ? `(${transactions.length})` : '';
+  if (!transactions.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="color:var(--text3);text-align:center;padding:32px">No transactions yet</td></tr>';
+    return;
+  }
+  tbody.innerHTML = transactions.map(t => `
+    <tr>
+      <td style="color:var(--text3);white-space:nowrap">${t.date}</td>
+      <td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.payee}</td>
+      <td class="${t.amount >= 0 ? 'pos' : 'neg'}">${t.amount >= 0 ? '+' : ''}$${Math.abs(t.amount).toFixed(2)}</td>
+      <td>${CAT_BADGE(t.cat)}</td>
+      <td style="color:var(--text2);font-size:0.75rem">${t.sub}</td>
+      <td>${POOL_BADGE(t.pool)}</td>
+    </tr>
+  `).join('');
+}
+
+let pieChart = null;
+function renderSummary() {
+  if (!transactions.length) {
+    document.getElementById('summary-empty').style.display = 'block';
+    document.getElementById('summary-content').style.display = 'none';
+    return;
+  }
+  document.getElementById('summary-empty').style.display = 'none';
+  document.getElementById('summary-content').style.display = 'block';
+
+  const income = transactions.filter(t => t.amount > 0 && t.cat !== 'Transfer').reduce((a,t) => a+t.amount, 0);
+  const expenses = transactions.filter(t => t.amount < 0).reduce((a,t) => a+Math.abs(t.amount), 0);
+  const net = income - expenses;
+  document.getElementById('s-income').textContent = '$' + income.toFixed(2);
+  document.getElementById('s-expenses').textContent = '$' + expenses.toFixed(2);
+  const netEl = document.getElementById('s-net');
+  netEl.textContent = (net >= 0 ? '+' : '') + '$' + net.toFixed(2);
+  netEl.style.color = net >= 0 ? 'var(--green)' : 'var(--red)';
+  document.getElementById('s-count').textContent = transactions.length;
+
+  const bycat = {};
+  transactions.filter(t => t.amount < 0).forEach(t => {
+    bycat[t.cat] = (bycat[t.cat] || 0) + Math.abs(t.amount);
+  });
+  const sorted = Object.entries(bycat).sort((a,b) => b[1]-a[1]);
+  const max = sorted[0]?.[1] || 1;
+  document.getElementById('cat-bars').innerHTML = sorted.map(([cat, amt]) => `
+    <div class="bar-item">
+      <div class="bar-meta"><span>${cat}</span><span>$${amt.toFixed(2)} · ${((amt/expenses)*100).toFixed(0)}%</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(amt/max*100).toFixed(1)}%;background:${CAT_COLORS[cat]||'#888'}"></div></div>
+    </div>
+  `).join('');
+
+  if (pieChart) pieChart.destroy();
+  const ctx = document.getElementById('pie-chart').getContext('2d');
+  pieChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: sorted.map(([c]) => c),
+      datasets: [{
+        data: sorted.map(([,v]) => parseFloat(v.toFixed(2))),
+        backgroundColor: sorted.map(([c]) => CAT_COLORS[c] || '#888'),
+        borderWidth: 0,
+        hoverOffset: 8,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` $${ctx.raw.toFixed(2)}` } } },
+      cutout: '65%',
+    }
+  });
+
+  const bypool = {};
+  transactions.filter(t => t.amount < 0).forEach(t => {
+    bypool[t.pool] = (bypool[t.pool] || 0) + Math.abs(t.amount);
+  });
+  document.getElementById('pool-summary-cards').innerHTML = Object.entries(bypool)
+    .sort((a,b)=>b[1]-a[1])
+    .map(([p,a]) => `
+      <div class="stat">
+        <div class="lbl">${p}</div>
+        <div class="val" style="color:${POOL_COLORS[p]||'var(--blue)'}">$${a.toFixed(2)}</div>
+        <div class="sub">${((a/expenses)*100).toFixed(0)}% of spending</div>
+      </div>
+    `).join('');
+}
+
+let pools = [
+  {name:'Bills', saved:0, goal:1200, color:'#e05c5c'},
+  {name:'Emergency Fund', saved:0, goal:6000, color:'#e07c5c'},
+  {name:'Guilt-Free', saved:0, goal:400, color:'#8b7fe8'},
+  {name:'Vacation', saved:0, goal:2000, color:'#4db87a'},
+  {name:'Investing', saved:0, goal:5000, color:'#3ec8c0'},
+  {name:'IRS Payback', saved:0, goal:3000, color:'#5b9cf6'},
+];
+
+function renderPools() {
+  document.getElementById('pools-grid').innerHTML = pools.map((p, i) => {
+    const pct = Math.min(100, p.goal > 0 ? (p.saved / p.goal * 100) : 0);
+    return `
+      <div class="pool-card">
+        <div class="p-name">${p.name}</div>
+        <div class="p-val">$${p.saved.toFixed(2)}</div>
+        <div class="p-goal">Goal: $${p.goal.toLocaleString()}</div>
+        <div class="pool-track"><div class="pool-fill" style="width:${pct.toFixed(1)}%;background:${p.color}"></div></div>
+        <div class="p-pct">${pct.toFixed(0)}% of goal</div>
+        <div class="pool-input-row">
+          <input type="number" placeholder="Add $" id="pool-add-${i}" step="0.01">
+          <button onclick="addToPool(${i})">+</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function addToPool(i) {
+  const val = parseFloat(document.getElementById('pool-add-' + i).value);
+  if (!val || isNaN(val)) return;
+  pools[i].saved = Math.max(0, pools[i].saved + val);
+  renderPools();
+}
+
+function addPool() {
+  const name = document.getElementById('new-pool-name').value.trim();
+  const goal = parseFloat(document.getElementById('new-pool-goal').value) || 1000;
+  if (!name) return;
+  pools.push({name, saved:0, goal, color:'#5b9cf6'});
+  document.getElementById('new-pool-name').value = '';
+  document.getElementById('new-pool-goal').value = '';
+  renderPools();
+}
+
+let goals = [
+  {name:'Pay off IRS', total:3000, saved:0, color:'#e05c5c'},
+  {name:'Emergency Fund (3 months)', total:6000, saved:0, color:'#e07c5c'},
+  {name:'Vacation fund', total:2000, saved:0, color:'#4db87a'},
+  {name:'Investment starter ($5k)', total:5000, saved:0, color:'#3ec8c0'},
+];
+
+function renderGoals() {
+  document.getElementById('goals-list').innerHTML = goals.map((g, i) => {
+    const pct = Math.min(100, g.total > 0 ? (g.saved / g.total * 100) : 0);
+    const remaining = Math.max(0, g.total - g.saved);
+    return `
+      <div class="goal-card">
+        <div class="goal-header">
+          <div class="goal-name">${g.name}</div>
+          <div class="goal-status">$${g.saved.toFixed(0)} / $${g.total.toLocaleString()}</div>
+        </div>
+        <div class="goal-track"><div class="goal-fill" style="width:${pct.toFixed(1)}%;background:${g.color}"></div></div>
+        <div class="goal-meta">
+          <span>${pct.toFixed(0)}% complete</span>
+          <span>$${remaining.toLocaleString()} remaining</span>
+        </div>
+        <div class="pool-input-row" style="margin-top:10px">
+          <input type="number" placeholder="Add progress $" id="goal-add-${i}" step="0.01">
+          <button onclick="addToGoal(${i})">+</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function addToGoal(i) {
+  const val = parseFloat(document.getElementById('goal-add-' + i).value);
+  if (!val || isNaN(val)) return;
+  goals[i].saved = Math.min(goals[i].total, goals[i].saved + val);
+  renderGoals();
+}
+
+function addGoal() {
+  const name = document.getElementById('new-goal-name').value.trim();
+  const total = parseFloat(document.getElementById('new-goal-total').value) || 1000;
+  const saved = parseFloat(document.getElementById('new-goal-saved').value) || 0;
+  if (!name) return;
+  goals.push({name, total, saved, color:'#5b9cf6'});
+  document.getElementById('new-goal-name').value = '';
+  document.getElementById('new-goal-total').value = '';
+  document.getElementById('new-goal-saved').value = '';
+  renderGoals();
+}
+
+let growthChart = null;
+function calcCompound() {
+  const P = parseFloat(document.getElementById('c-principal').value) || 0;
+  const r = parseFloat(document.getElementById('c-rate').value) / 100 || 0;
+  const t = parseInt(document.getElementById('c-years').value) || 0;
+  const freq = parseInt(document.getElementById('c-freq').value);
+  const PMT = freq > 0 ? parseFloat(document.getElementById('c-contrib').value) || 0 : 0;
+  const n = parseInt(document.getElementById('c-compounds').value);
+  const periodicRate = r / n;
+  const periods = n * t;
+  let finalBalance = P * Math.pow(1 + periodicRate, periods);
+  if (freq > 0 && PMT > 0 && periodicRate > 0) {
+    const contribPerPeriod = PMT * freq / n;
+    finalBalance += contribPerPeriod * ((Math.pow(1 + periodicRate, periods) - 1) / periodicRate);
+  }
+  const totalContrib = P + (freq > 0 ? PMT * freq * t : 0);
+  const interest = finalBalance - totalContrib;
+  document.getElementById('c-result').textContent = '$' + Math.round(finalBalance).toLocaleString();
+  document.getElementById('c-principal-out').textContent = '$' + P.toLocaleString();
+  document.getElementById('c-contributed').textContent = '$' + Math.round(totalContrib).toLocaleString();
+  document.getElementById('c-interest').textContent = '$' + Math.round(interest).toLocaleString();
+  document.getElementById('c-pct').textContent = finalBalance > 0 ? ((interest / finalBalance) * 100).toFixed(1) + '%' : '0%';
+
+  const labels = [], balances = [], contribs = [];
+  for (let y = 0; y <= t; y++) {
+    const p2 = n * y;
+    let bal = P * Math.pow(1 + periodicRate, p2);
+    if (freq > 0 && PMT > 0 && periodicRate > 0) {
+      const cpp = PMT * freq / n;
+      bal += cpp * ((Math.pow(1 + periodicRate, p2) - 1) / periodicRate);
+    }
+    labels.push(y === 0 ? 'Now' : 'Yr ' + y);
+    balances.push(Math.round(bal));
+    contribs.push(Math.round(P + PMT * freq * y));
+  }
+
+  const tbody = document.getElementById('c-table-body');
+  const rows = [];
+  for (let y = 1; y <= Math.min(t, 40); y++) {
+    rows.push(`<tr>
+      <td style="color:var(--text3)">${y}</td>
+      <td class="pos">$${balances[y].toLocaleString()}</td>
+      <td style="color:var(--text2)">$${contribs[y].toLocaleString()}</td>
+      <td style="color:var(--green)">$${(balances[y]-contribs[y]).toLocaleString()}</td>
+      <td style="color:var(--text3)">$${(balances[y]-(balances[y-1]||0)).toLocaleString()}</td>
+    </tr>`);
+  }
+  tbody.innerHTML = rows.join('');
+
+  if (growthChart) growthChart.destroy();
+  const ctx2 = document.getElementById('growth-chart').getContext('2d');
+  const step = t > 20 ? Math.ceil(t / 15) : 1;
+  const sl = labels.filter((_,i) => i % step === 0);
+  const sb = balances.filter((_,i) => i % step === 0);
+  const sc = contribs.filter((_,i) => i % step === 0);
+  growthChart = new Chart(ctx2, {
+    type: 'line',
+    data: {
+      labels: sl,
+      datasets: [
+        {label:'Balance', data:sb, borderColor:'#5b9cf6', backgroundColor:'rgba(91,156,246,0.12)', fill:true, tension:0.3, pointRadius:0, borderWidth:2},
+        {label:'Contributed', data:sc, borderColor:'#4db87a', backgroundColor:'rgba(77,184,122,0.08)', fill:true, tension:0.3, pointRadius:0, borderWidth:1.5, borderDash:[4,4]},
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ` $${ctx.raw.toLocaleString()}` } } },
+      scales:{
+        x:{ ticks:{color:'#3d5470',font:{size:10}}, grid:{color:'rgba(255,255,255,0.04)'} },
+        y:{ ticks:{color:'#3d5470',font:{size:10}, callback: v => '$'+Math.round(v/1000)+'k'}, grid:{color:'rgba(255,255,255,0.04)'} }
+      }
+    }
+  });
+}
+
+renderPools();
+renderGoals();
+calcCompound();
+</script>
+</body>
+</html>
