@@ -458,7 +458,7 @@ tr:hover td{background:var(--surface)}
     </select>
     <input type="text" id="new-rule-sub" placeholder="Subcategory" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 12px;border-radius:4px;outline:none;width:140px">
     <select id="new-rule-pool" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 10px;border-radius:4px;outline:none">
-      <option>Bills</option><option>Essentials</option><option>Guilt-Free</option><option>Investing</option><option>Income</option><option>Transfer</option>
+      <option>Bills</option><option>Essentials</option><option>Guilt-Free</option><option>Unplanned</option><option>Investing</option><option>Income</option><option>Transfer</option>
     </select>
     <button class="btn btn-primary" onclick="addRule()">Add rule</button>
   </div>
@@ -566,7 +566,7 @@ const RULES = [
   {match:/doctor|clinic|urgent|hospital|pharmacy|cvs|walgreen/i, cat:'Medical', sub:'Healthcare', pool:'Essentials'},
   {match:/gym|planet fitness/i, cat:'Health', sub:'Gym', pool:'Guilt-Free'},
 ];
-const POOL_COLORS = {'Bills':'#e05c5c','Essentials':'#5b9cf6','Guilt-Free':'#8b7fe8','Investing':'#3ec8c0','Sinking Fund':'#4db87a','Emergency':'#e07c5c','Transfer':'#5a5550','Income':'#4db87a'};
+const POOL_COLORS = {'Bills':'#e05c5c','Essentials':'#5b9cf6','Guilt-Free':'#8b7fe8','Unplanned':'#e8a840','Investing':'#3ec8c0','Sinking Fund':'#4db87a','Emergency':'#e07c5c','Transfer':'#5a5550','Income':'#4db87a'};
 const CAT_COLORS = {'Food':'#e8a840','Debt':'#e87070','Utilities':'#5b9cf6','Transportation':'#4db87a','Personal':'#a07ee8','Income':'#3ec8c0','Investing':'#7ab4f8','Subscriptions':'#e870b8','Medical':'#70d8e8','Health':'#90d870','Transfer':'#888880'};
 let customRules = [];
 function categorize(payee) {
@@ -737,7 +737,7 @@ function renderTxTable() {
 </td>
 <td>
   <select onchange="updateField('${t.id}', 'pool', this.value)" style="background:var(--card);border:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:0.65rem;padding:3px 6px;border-radius:3px;cursor:pointer">
-    ${['Bills','Essentials','Guilt-Free','Investing','Income','Transfer'].map(p=>`<option value="${p}" ${t.pool===p?'selected':''}>${p}</option>`).join('')}
+    ${['Bills','Essentials','Guilt-Free','Unplanned','Investing','Income','Transfer'].map(p=>`<option value="${p}" ${t.pool===p?'selected':''}>${p}</option>`).join('')}
   </select>
 </td>
       <td><button onclick="deleteTransaction('${t.id}')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:0.9rem;padding:2px 6px" title="Delete">×</button></td>
