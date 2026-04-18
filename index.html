@@ -561,7 +561,9 @@ const RULES = [
   {match:/netflix|spotify|hulu|disney|apple\.com|prime video/i, cat:'Subscriptions', sub:'Streaming', pool:'Guilt-Free'},
   {match:/amazon/i, cat:'Personal', sub:'Shopping', pool:'Guilt-Free'},
   {match:/kohl|target|macy|nordstrom/i, cat:'Personal', sub:'Clothing', pool:'Guilt-Free'},
-  {match:/transfer|zelle/i, cat:'Transfer', sub:'Internal Transfer', pool:'Transfer'},
+  {match:/internet transfer|online transfer|account transfer|funds transfer|ach transfer/i, cat:'Transfer', sub:'Internal Transfer', pool:'Transfer'},
+  {match:/zelle|cash app|venmo/i, cat:'Transfer', sub:'Internal Transfer', pool:'Transfer'},
+  {match:/\*\d{4}\s*(ck|sav|chk|checking|savings)/i, cat:'Transfer', sub:'Internal Transfer', pool:'Transfer'},
   {match:/irs/i, cat:'Debt', sub:'IRS Payment', pool:'Bills'},
   {match:/doctor|clinic|urgent|hospital|pharmacy|cvs|walgreen/i, cat:'Medical', sub:'Healthcare', pool:'Essentials'},
   {match:/gym|planet fitness/i, cat:'Health', sub:'Gym', pool:'Guilt-Free'},
@@ -764,7 +766,8 @@ function renderSummary() {
   const netEl = document.getElementById('s-net');
   netEl.textContent = (net >= 0 ? '+' : '') + '$' + net.toFixed(2);
   netEl.style.color = net >= 0 ? 'var(--green)' : 'var(--red)';
-  document.getElementById('s-count').textContent = data.length;
+  const nonTransferData = data.filter(t => getCat(t) !== 'Transfer'); 
+  document.getElementById('s-count').textContent = nonTransferData.length;
   const bycat = {};
   data.filter(t => t.amount < 0 && getCat(t) !== 'Transfer').forEach(t => { const c = getCat(t); bycat[c] = (bycat[c]||0) + Math.abs(t.amount); });
   const sorted = Object.entries(bycat).sort((a,b) => b[1]-a[1]);
