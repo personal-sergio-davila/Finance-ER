@@ -568,6 +568,7 @@ const RULES = [
 ];
 const POOL_COLORS = {'Bills':'#e05c5c','Essentials':'#5b9cf6','Guilt-Free':'#8b7fe8','Investing':'#3ec8c0','Sinking Fund':'#4db87a','Emergency':'#e07c5c','Transfer':'#5a5550','Income':'#4db87a'};
 const CAT_COLORS = {'Food':'#e8a840','Debt':'#e87070','Utilities':'#5b9cf6','Transportation':'#4db87a','Personal':'#a07ee8','Income':'#3ec8c0','Investing':'#7ab4f8','Subscriptions':'#e870b8','Medical':'#70d8e8','Health':'#90d870','Transfer':'#888880'};
+let customRules = [];
 function categorize(payee) {
   for (const r of customRules) {
     if (payee.toLowerCase().includes(r.match)) return {cat:r.cat, sub:r.sub, pool:r.pool};
@@ -1039,7 +1040,7 @@ async function deleteBudgetLimit(id) {
 }
 
 /* ── SETTINGS / RULES ── */
-let customRules = [];
+
 
 function loadSettings() {
   const stored = localStorage.getItem('fer-rules');
