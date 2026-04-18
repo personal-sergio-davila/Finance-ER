@@ -252,6 +252,7 @@ tr:hover td{background:var(--surface)}
     <button class="tab-btn" onclick="switchTab('pools')">Pools & Goals</button>
     <button class="tab-btn" onclick="switchTab('bills')">Bills</button>
     <button class="tab-btn" onclick="switchTab('calculator')">Calculator</button>
+    <button class="tab-btn" onclick="switchTab('settings')">Settings</button>
   </div>
   <span class="db-dot" id="db-dot" title="Database status"></span>
   <button class="theme-btn" id="theme-btn" onclick="cycleTheme()">Auto</button>
@@ -434,6 +435,42 @@ tr:hover td{background:var(--surface)}
   <div class="note">Formula: A = P(1 + r/n)^(nt) + PMT × [((1 + r/n)^(nt) − 1) / (r/n)] · All returns are reinvested. This is a projection tool — actual returns vary.</div>
 </div>
 
+<!-- SETTINGS -->
+<div id="tab-settings" class="tab-panel">
+
+  <div class="section-label">Auto-categorization rules</div>
+  <p style="font-size:0.72rem;color:var(--text3);margin-bottom:16px">These rules match payee names and assign a category automatically on import. Checked first — more specific rules should go at the top.</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Matches (keyword)</th><th>Category</th><th>Subcategory</th><th>Pool</th><th></th></tr></thead>
+      <tbody id="rules-body"></tbody>
+    </table>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px">
+    <input type="text" id="new-rule-match" placeholder="Keyword (e.g. netflix)" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 12px;border-radius:4px;outline:none;width:160px">
+    <select id="new-rule-cat" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 10px;border-radius:4px;outline:none">
+      <option>Food</option><option>Debt</option><option>Utilities</option><option>Transportation</option><option>Personal</option><option>Income</option><option>Investing</option><option>Subscriptions</option><option>Medical</option><option>Health</option><option>Transfer</option><option>Other</option>
+    </select>
+    <input type="text" id="new-rule-sub" placeholder="Subcategory" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 12px;border-radius:4px;outline:none;width:140px">
+    <select id="new-rule-pool" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:8px 10px;border-radius:4px;outline:none">
+      <option>Bills</option><option>Essentials</option><option>Guilt-Free</option><option>Investing</option><option>Income</option><option>Transfer</option>
+    </select>
+    <button class="btn btn-primary" onclick="addRule()">Add rule</button>
+  </div>
+
+  <div class="section-label" style="margin-top:32px">Export</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn" onclick="exportSummaryReport()">Export summary report</button>
+    <button class="btn" onclick="exportCSV()">Export all transactions CSV</button>
+  </div>
+
+  <div class="section-label" style="margin-top:32px">Danger zone</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn btn-danger" onclick="clearAllTransactions()">Clear all transactions</button>
+  </div>
+
+</div>
+
 </main>
 </div>
 
@@ -500,6 +537,7 @@ function switchTab(name) {
   if (name === 'pools') loadPools();
   if (name === 'calculator') calcCompound();
   if (name === 'bills') loadBills();
+  if (name === 'settings') loadSettings();
 }
 
 /* ── RULES / COLORS ── */
@@ -525,6 +563,9 @@ const RULES = [
 const POOL_COLORS = {'Bills':'#e05c5c','Essentials':'#5b9cf6','Guilt-Free':'#8b7fe8','Investing':'#3ec8c0','Sinking Fund':'#4db87a','Emergency':'#e07c5c','Transfer':'#5a5550','Income':'#4db87a'};
 const CAT_COLORS = {'Food':'#e8a840','Debt':'#e87070','Utilities':'#5b9cf6','Transportation':'#4db87a','Personal':'#a07ee8','Income':'#3ec8c0','Investing':'#7ab4f8','Subscriptions':'#e870b8','Medical':'#70d8e8','Health':'#90d870','Transfer':'#888880'};
 function categorize(payee) {
+  for (const r of customRules) {
+    if (payee.toLowerCase().includes(r.match)) return {cat:r.cat, sub:r.sub, pool:r.pool};
+  }
   for (const r of RULES) if (r.match.test(payee)) return {cat:r.cat, sub:r.sub, pool:r.pool};
   return {cat:'Other', sub:'Uncategorized', pool:'Essentials'};
 }
@@ -982,7 +1023,86 @@ async function deleteBudgetLimit(id) {
     toast('Limit removed', 'ok');
   } catch(e) { toast('Error: ' + e.message, 'err'); }
 }
-  
+
+/* ── SETTINGS / RULES ── */
+let customRules = [];
+
+function loadSettings() {
+  const stored = localStorage.getItem('fer-rules');
+  if (stored) {
+    try { customRules = JSON.parse(stored); } catch(e) { customRules = []; }
+  }
+  renderRules();
+}
+
+function saveRules() {
+  try { localStorage.setItem('fer-rules', JSON.stringify(customRules)); } catch(e) {}
+}
+
+function renderRules() {
+  const allRules = [
+    ...customRules.map((r, i) => ({...r, _custom: true, _idx: i})),
+    ...RULES.map(r => ({match: r.match.source, cat: r.cat, sub: r.sub, pool: r.pool, _custom: false}))
+  ];
+  document.getElementById('rules-body').innerHTML = allRules.map(r => `
+    <tr>
+      <td style="font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--blue)">${r.match}</td>
+      <td>${r.cat}</td>
+      <td style="color:var(--text2)">${r.sub}</td>
+      <td><span class="badge badge-pool-bills" style="font-size:0.58rem">${r.pool}</span></td>
+      <td>${r._custom ? `<button onclick="deleteRule(${r._idx})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:0.9rem;padding:2px 6px">×</button>` : '<span style="font-size:0.62rem;color:var(--text3)">built-in</span>'}</td>
+    </tr>`).join('');
+}
+
+function addRule() {
+  const match = document.getElementById('new-rule-match').value.trim().toLowerCase();
+  const cat = document.getElementById('new-rule-cat').value;
+  const sub = document.getElementById('new-rule-sub').value.trim();
+  const pool = document.getElementById('new-rule-pool').value;
+  if (!match || !sub) return;
+  customRules.unshift({match, cat, sub, pool});
+  saveRules();
+  renderRules();
+  document.getElementById('new-rule-match').value = '';
+  document.getElementById('new-rule-sub').value = '';
+  toast('Rule added — applies on next import', 'ok');
+}
+
+function deleteRule(idx) {
+  customRules.splice(idx, 1);
+  saveRules();
+  renderRules();
+  toast('Rule removed', 'ok');
+}
+
+function exportSummaryReport() {
+  const data = (typeof filteredTransactions !== 'undefined' && filteredTransactions.length) ? filteredTransactions : transactions;
+  if (!data.length) { toast('No data to export', 'err'); return; }
+  const getCat = t => t.cat || t.category || 'Other';
+  const income = data.filter(t => t.amount > 0 && getCat(t) !== 'Transfer').reduce((a,t) => a+t.amount, 0);
+  const expenses = data.filter(t => t.amount < 0).reduce((a,t) => a+Math.abs(t.amount), 0);
+  const bycat = {};
+  data.filter(t => t.amount < 0).forEach(t => { const c = getCat(t); bycat[c] = (bycat[c]||0) + Math.abs(t.amount); });
+  const lines = [
+    'Finance-ER Summary Report',
+    'Generated: ' + new Date().toLocaleDateString(),
+    '',
+    'OVERVIEW',
+    'Income,$' + income.toFixed(2),
+    'Expenses,$' + expenses.toFixed(2),
+    'Net Cash Flow,$' + (income - expenses).toFixed(2),
+    'Transactions,' + data.length,
+    '',
+    'SPENDING BY CATEGORY',
+    ...Object.entries(bycat).sort((a,b)=>b[1]-a[1]).map(([cat,amt]) => `${cat},$${amt.toFixed(2)},${((amt/expenses)*100).toFixed(0)}%`),
+  ];
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(lines.join('\n'));
+  a.download = 'finance-er-summary.csv';
+  a.click();
+  toast('Summary exported', 'ok');
+}
+
 /* ── UpdateID ── */
 async function updateCategory(id, category) {
   try {
@@ -1053,6 +1173,7 @@ loadTransactions();
 loadPools();
 loadBills();
 loadBudgetLimits();
+loadSettings();
 calcCompound();
 </script>
 </body>
