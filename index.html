@@ -235,10 +235,16 @@ tr:hover td{background:var(--surface)}
 .loading{color:var(--text3);font-size:0.78rem;padding:24px 0;text-align:center}
 
 @media(max-width:600px){
-  nav{padding:0 12px}
+  nav{padding:0 12px;flex-wrap:wrap}
   main{padding:20px 12px}
   .tab-btn{padding:16px 10px;font-size:0.65rem}
   .nav-brand{font-size:1rem;padding:14px 12px 14px 0}
+  #nav-user{display:none !important}
+  .nav-tabs{order:3;width:100%;border-top:1px solid var(--border);overflow-x:auto}
+  .nav-brand{order:1}
+  .db-dot{order:2}
+  #signout-btn{order:2;font-size:0.6rem;padding:5px 8px}
+  #theme-btn{order:2;font-size:0.6rem;padding:5px 8px}
 }
 
   @keyframes shimmer {
