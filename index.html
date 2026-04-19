@@ -595,7 +595,8 @@ tr:hover td{background:var(--surface)}
 const SUPA_URL = 'https://ctccqiohmeljddybfmby.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0Y2NxaW9obWVsamRkeWJmbWJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MzA2MTcsImV4cCI6MjA5MjEwNjYxN30.VShTCAch-plBFp_49SIgeKkSveS38lHChRijqUN3JAM';
 
-const supabase = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+const { createClient } = window.supabase;
+const supabase = createClient(SUPA_URL, SUPA_KEY);
 let currentUser = null;
 
 function getHeaders() {
@@ -623,6 +624,7 @@ function toggleAuthMode() {
 }
 
 async function authSubmit() {
+  console.log('authSubmit called, mode:', authMode);
   const email = document.getElementById('auth-email').value.trim();
   const password = document.getElementById('auth-password').value;
   const errEl = document.getElementById('auth-error');
