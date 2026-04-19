@@ -104,7 +104,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-
 .app{display:flex;flex-direction:column;min-height:100vh}
 
 nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:0;position:sticky;top:0;z-index:100}
-.nav-brand{font-family:'Instrument Serif',serif;font-size:1.2rem;color:var(--blue);padding:16px 20px 16px 0;border-right:1px solid var(--border);margin-right:8px;white-space:nowrap}
+.nav-brand{font-family:'Instrument Serif',serif;font-size:1.2rem;color:var(--blue);padding:16px 20px 16px 0;border-right:1px solid var(--border);margin-right:8px;white-space:nowrap;flex-shrink:0}
 .nav-brand span{color:var(--teal);font-style:italic}
 .nav-tabs{display:flex;gap:0;overflow-x:auto;scrollbar-width:none;flex:1}
 .nav-tabs::-webkit-scrollbar{display:none}
@@ -235,16 +235,17 @@ tr:hover td{background:var(--surface)}
 .loading{color:var(--text3);font-size:0.78rem;padding:24px 0;text-align:center}
 
 @media(max-width:600px){
-  nav{padding:0;flex-direction:column;height:auto}
+  nav{padding:0 16px;flex-wrap:wrap}
   main{padding:20px 12px}
-  .nav-brand{font-size:1rem;padding:12px 16px;border-right:none;border-bottom:1px solid var(--border);width:100%;display:flex;align-items:center;justify-content:space-between}
+  .nav-brand{font-size:1rem;padding:12px 0;border-right:none;margin-right:0;flex-shrink:0}
+  .nav-brand-right{display:flex;align-items:center;gap:6px;margin-left:auto}
   #nav-user{display:none !important}
-  #signout-btn{font-size:0.6rem;padding:5px 10px;margin-left:0}
-  #theme-btn{font-size:0.6rem;padding:5px 10px;margin-left:6px}
+  #signout-btn{font-size:0.6rem;padding:5px 8px;margin-left:0}
+  #theme-btn{font-size:0.6rem;padding:5px 8px;margin-left:0}
   .db-dot{margin-left:0}
-  .nav-tabs{width:100%;overflow-x:auto;scrollbar-width:none;display:flex;border-bottom:1px solid var(--border)}
+  .nav-tabs{order:3;width:100%;border-top:1px solid var(--border);overflow-x:auto;scrollbar-width:none;display:flex;margin:0 -16px;padding:0 16px}
   .nav-tabs::-webkit-scrollbar{display:none}
-  .tab-btn{padding:14px 16px;font-size:0.72rem;flex-shrink:0;white-space:nowrap}
+  .tab-btn{padding:14px 14px;font-size:0.72rem;flex-shrink:0}
 }
 
   @keyframes shimmer {
@@ -308,9 +309,9 @@ tr:hover td{background:var(--surface)}
 </div>
   
 <nav>
-  <div class="nav-brand">
-  Finance<span>-ER</span>
-  <div class="nav-brand-right" style="display:flex;align-items:center;gap:6px">
+  <div class="nav-brand" style="display:flex;align-items:center;justify-content:space-between;flex:none">
+  <span>Finance<span style="color:var(--teal);font-style:italic">-ER</span></span>
+  <div class="nav-brand-right" style="display:flex;align-items:center;gap:6px;margin-left:16px">
     <span class="db-dot" id="db-dot" title="Database status"></span>
     <span id="nav-user" style="font-size:0.62rem;color:var(--text3);white-space:nowrap;display:none"></span>
     <button id="signout-btn" onclick="signOut()" style="display:none;background:none;border:1px solid var(--border2);color:var(--text2);font-family:'DM Mono',monospace;font-size:0.65rem;padding:6px 11px;border-radius:4px;cursor:pointer">Sign out</button>
