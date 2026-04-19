@@ -596,7 +596,7 @@ const SUPA_URL = 'https://ctccqiohmeljddybfmby.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0Y2NxaW9obWVsamRkeWJmbWJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MzA2MTcsImV4cCI6MjA5MjEwNjYxN30.VShTCAch-plBFp_49SIgeKkSveS38lHChRijqUN3JAM';
 
 const { createClient } = window.supabase;
-const supabase = createClient(SUPA_URL, SUPA_KEY);
+const sb = createClient(SUPA_URL, SUPA_KEY);
 let currentUser = null;
 
 function getHeaders() {
@@ -606,7 +606,7 @@ function getHeaders() {
     'Prefer': 'return=representation'
   };
   const token = currentUser?._accessToken || 
-    supabase.auth._session?.access_token || 
+    sb.auth._session?.access_token || 
     SUPA_KEY;
   h['Authorization'] = 'Bearer ' + token;
   return h;
@@ -636,9 +636,9 @@ async function authSubmit() {
   try {
     let result;
     if (authMode === 'signin') {
-      result = await supabase.auth.signInWithPassword({email, password});
+      result = await sb.auth.signInWithPassword({email, password});
     } else {
-      result = await supabase.auth.signUp({email, password});
+      result = await sb.auth.signUp({email, password});
     }
     if (result.error) throw result.error;
     if (authMode === 'signup' && !result.data?.session) {
@@ -658,13 +658,13 @@ async function authSubmit() {
 }
 
 async function signOut() {
-  await supabase.auth.signOut();
+  await sb.auth.signOut();
 }
 
 document.getElementById('auth-email').addEventListener('keydown', e => { if (e.key === 'Enter') authSubmit(); });
 document.getElementById('auth-password').addEventListener('keydown', e => { if (e.key === 'Enter') authSubmit(); });
 
-supabase.auth.onAuthStateChange((event, session) => {
+sb.auth.onAuthStateChange((event, session) => {
   if (session?.user) {
     currentUser = session.user;
     currentUser._accessToken = session.access_token;
