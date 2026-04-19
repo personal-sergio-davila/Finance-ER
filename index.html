@@ -235,16 +235,16 @@ tr:hover td{background:var(--surface)}
 .loading{color:var(--text3);font-size:0.78rem;padding:24px 0;text-align:center}
 
 @media(max-width:600px){
-  nav{padding:0 12px;flex-wrap:wrap;height:auto}
+  nav{padding:0;flex-direction:column;height:auto}
   main{padding:20px 12px}
-  .nav-brand{order:1;font-size:1rem;padding:14px 12px 14px 0;flex:1}
-  .db-dot{order:2}
-  #signout-btn{order:2;font-size:0.6rem;padding:5px 8px}
-  #theme-btn{order:2;font-size:0.6rem;padding:5px 8px}
+  .nav-brand{font-size:1rem;padding:12px 16px;border-right:none;border-bottom:1px solid var(--border);width:100%;display:flex;align-items:center;justify-content:space-between}
   #nav-user{display:none !important}
-  .nav-tabs{order:3;width:100%;border-top:1px solid var(--border);overflow-x:auto;scrollbar-width:none;display:flex}
+  #signout-btn{font-size:0.6rem;padding:5px 10px;margin-left:0}
+  #theme-btn{font-size:0.6rem;padding:5px 10px;margin-left:6px}
+  .db-dot{margin-left:0}
+  .nav-tabs{width:100%;overflow-x:auto;scrollbar-width:none;display:flex;border-bottom:1px solid var(--border)}
   .nav-tabs::-webkit-scrollbar{display:none}
-  .tab-btn{padding:14px 14px;font-size:0.72rem;flex-shrink:0}
+  .tab-btn{padding:14px 16px;font-size:0.72rem;flex-shrink:0;white-space:nowrap}
 }
 
   @keyframes shimmer {
@@ -308,8 +308,16 @@ tr:hover td{background:var(--surface)}
 </div>
   
 <nav>
-  <div class="nav-brand">Finance<span>-ER</span></div>
-  <div class="nav-tabs">
+  <div class="nav-brand">
+  Finance<span>-ER</span>
+  <div class="nav-brand-right" style="display:flex;align-items:center;gap:6px">
+    <span class="db-dot" id="db-dot" title="Database status"></span>
+    <span id="nav-user" style="font-size:0.62rem;color:var(--text3);white-space:nowrap;display:none"></span>
+    <button id="signout-btn" onclick="signOut()" style="display:none;background:none;border:1px solid var(--border2);color:var(--text2);font-family:'DM Mono',monospace;font-size:0.65rem;padding:6px 11px;border-radius:4px;cursor:pointer">Sign out</button>
+    <button class="theme-btn" id="theme-btn" onclick="cycleTheme()">Auto</button>
+  </div>
+</div>
+<div class="nav-tabs">
     <button class="tab-btn active" onclick="switchTab('transactions', this)">Transactions</button>
     <button class="tab-btn" onclick="switchTab('summary', this)">Summary</button>
     <button class="tab-btn" onclick="switchTab('pools', this)">Pools & Goals</button>
@@ -317,10 +325,6 @@ tr:hover td{background:var(--surface)}
     <button class="tab-btn" onclick="switchTab('calculator', this)">Calculator</button>
     <button class="tab-btn" onclick="switchTab('settings', this)">Settings</button>
   </div>
-  <span class="db-dot" id="db-dot" title="Database status"></span>
-  <span id="nav-user" style="font-size:0.62rem;color:var(--text3);margin-left:10px;white-space:nowrap;display:none"></span>
-<button id="signout-btn" onclick="signOut()" style="display:none;background:none;border:1px solid var(--border2);color:var(--text2);font-family:'DM Mono',monospace;font-size:0.65rem;padding:6px 11px;border-radius:4px;cursor:pointer;margin-left:6px">Sign out</button>
-<button class="theme-btn" id="theme-btn" onclick="cycleTheme()">Auto</button>
 </nav>
 
 <main>
