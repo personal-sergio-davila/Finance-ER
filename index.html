@@ -698,9 +698,10 @@ async function dbGet(table, params) {
   return r.json();
 }
 async function dbInsert(table, data) {
-  const payload = Array.isArray(data)
-    ? data.map(d => currentUser ? {...d, user_id: currentUser.id} : d)
-    : (currentUser ? {...data, user_id: currentUser.id} : data);
+const skipUserInject = ['user_settings'].includes(table);
+const payload = Array.isArray(data)
+  ? data.map(d => (currentUser && !skipUserInject) ? {...d, user_id: currentUser.id} : d)
+  : ((currentUser && !skipUserInject) ? {...data, user_id: currentUser.id} : data);
   const r = await fetch(SUPA_URL + '/rest/v1/' + table, { method:'POST', headers: getHeaders(), body: JSON.stringify(payload) });
   if (!r.ok) throw new Error(await r.text());
   return r.json();
@@ -1266,16 +1267,60 @@ async function deleteBudgetLimit(id) {
 /* ── SETTINGS / RULES ── */
 
 
-function loadSettings() {
-  const stored = localStorage.getItem('fer-rules');
-  if (stored) {
-    try { customRules = JSON.parse(stored); } catch(e) { customRules = []; }
+async function loadSettings() {
+  try {
+    const rows = await dbGet('user_settings', `user_id=eq.${currentUser.id}`);
+    if (rows.length && rows[0].custom_rules) {
+      customRules = rows[0].custom_rules;
+    } else {
+      const stored = localStorage.getItem('fer-rules');
+      if (stored) { try { customRules = JSON.parse(stored); } catch(e) { customRules = []; } }
+    }
+    if (rows.length && rows[0].planner_paycheck) {
+      document.getElementById('planner-paycheck').value = rows[0].planner_paycheck;
+    } else {
+      const saved = localStorage.getItem('fer-paycheck');
+      if (saved) document.getElementById('planner-paycheck').value = saved;
+    }
+    if (rows.length && rows[0].planner_freq) {
+      document.getElementById('planner-freq').value = rows[0].planner_freq;
+    } else {
+      const saved = localStorage.getItem('fer-freq');
+      if (saved) document.getElementById('planner-freq').value = saved;
+    }
+  } catch(e) {
+    const stored = localStorage.getItem('fer-rules');
+    if (stored) { try { customRules = JSON.parse(stored); } catch(e2) { customRules = []; } }
   }
   renderRules();
 }
 
+async function saveSettings() {
+  if (!currentUser) return;
+  const paycheck = document.getElementById('planner-paycheck').value;
+  const freq = document.getElementById('planner-freq').value;
+  try {
+    const existing = await dbGet('user_settings', `user_id=eq.${currentUser.id}`);
+    if (existing.length) {
+      await dbUpdate('user_settings', existing[0].id, {
+        custom_rules: customRules,
+        planner_paycheck: parseFloat(paycheck) || null,
+        planner_freq: parseInt(freq) || 26
+      });
+    } else {
+      await dbInsert('user_settings', {
+        user_id: currentUser.id,
+        custom_rules: customRules,
+        planner_paycheck: parseFloat(paycheck) || null,
+        planner_freq: parseInt(freq) || 26
+      });
+    }
+  } catch(e) { console.error('Settings save error:', e); }
+}
+
 function saveRules() {
   try { localStorage.setItem('fer-rules', JSON.stringify(customRules)); } catch(e) {}
+  saveSettings();
 }
 
 function renderRules() {
@@ -1534,7 +1579,8 @@ function togglePlannerBreakdown() {
 
 function calcPlanner() {
   localStorage.setItem('fer-paycheck', document.getElementById('planner-paycheck').value);
-  localStorage.setItem('fer-freq', document.getElementById('planner-freq').value);
+localStorage.setItem('fer-freq', document.getElementById('planner-freq').value);
+saveSettings();
   const paycheck = parseFloat(document.getElementById('planner-paycheck').value) || 0;
   const freq = parseInt(document.getElementById('planner-freq').value) || 26;
   if (!paycheck) { document.getElementById('planner-result').style.display = 'none'; return; }
@@ -1689,10 +1735,6 @@ function initApp() {
   loadSettings();
   loadScenarios();
   calcCompound();
-  const savedPaycheck = localStorage.getItem('fer-paycheck');
-  const savedFreq = localStorage.getItem('fer-freq');
-  if (savedPaycheck) document.getElementById('planner-paycheck').value = savedPaycheck;
-  if (savedFreq) document.getElementById('planner-freq').value = savedFreq;
 }
 </script>
 </body>
