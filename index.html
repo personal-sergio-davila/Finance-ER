@@ -927,6 +927,7 @@ async function adjustItem(id, type, idx, direction) {
     await dbUpdate(table, id, {saved: newSaved});
     item.saved = newSaved;
     renderPools();
+    calcPlanner()
     toast((direction > 0 ? 'Added' : 'Subtracted') + ' $' + val.toFixed(2), 'ok');
   } catch(e) { toast('Error: ' + e.message, 'err'); }
 }
