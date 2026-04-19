@@ -244,6 +244,32 @@ tr:hover td{background:var(--surface)}
   0%{background-position:200% 0}
   100%{background-position:-200% 0}
 }
+
+@media print {
+  body { background: #fff !important; color: #0f1f30 !important; font-size: 11px; }
+  nav, .tab-btn, .theme-btn, .db-dot, .btn, .drop-zone, #file-input,
+  .pool-input-row, .section-label:not(.print-show), input[type="date"],
+  #planner-paycheck, #planner-freq, #planner-toggle-btn, #new-item-type,
+  #new-pool-name, #new-pool-goal, #new-pool-months, #new-pool-date,
+  .tab-panel:not(#tab-pools) { display: none !important; }
+  #tab-pools { display: block !important; }
+  main { padding: 12px !important; max-width: 100% !important; }
+  .pool-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; }
+  .pool-card { border: 1px solid #d0dce8 !important; background: #fff !important;
+    box-shadow: none !important; padding: 12px !important; break-inside: avoid; }
+  .pool-card .p-name { font-size: 0.7rem !important; color: #1e3a58 !important; }
+  .pool-card .p-val { font-size: 1.2rem !important; color: #2563b8 !important; }
+  .pool-card .p-goal input { border: none !important; background: none !important;
+    font-size: 0.7rem !important; color: #4a6280 !important; padding: 0 !important; width: auto !important; }
+  .pool-track { background: #d0dce8 !important; }
+  .pool-fill { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  #planner-result { display: block !important; border: 1px solid #d0dce8 !important;
+    background: #f0f4f9 !important; margin-top: 16px !important; }
+  #planner-breakdown { display: block !important; }
+  #planner-total { color: #2563b8 !important; }
+  .print-header { display: block !important; }
+}
+.print-header { display: none; }
   
 </style>
 </head>
@@ -333,9 +359,21 @@ tr:hover td{background:var(--surface)}
 
 <!-- POOLS & GOALS -->
 <div id="tab-pools" class="tab-panel">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;margin-top:0">
-    <span class="section-label" style="margin:0">Money pools & goals</span>
-    <div style="display:flex;gap:6px">
+  <div class="print-header" style="margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #d0dce8">
+  <div style="font-family:'Instrument Serif',serif;font-size:1.4rem;color:#2563b8">Finance<span style="color:#0d8c86;font-style:italic">-ER</span></div>
+  <div style="font-size:0.72rem;color:#4a6280;margin-top:2px">Pools & Goals Report · Generated <span id="print-date"></span></div>
+</div>
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;margin-top:0">
+  <span class="section-label" style="margin:0">Money pools & goals</span>
+  <div style="display:flex;gap:6px;align-items:center">
+    <div style="position:relative">
+      <button class="btn" id="share-btn" onclick="toggleShareMenu()" style="background:var(--blue3);border-color:var(--blue2);color:var(--blue)">Share ▾</button>
+      <div id="share-menu" style="display:none;position:absolute;right:0;top:36px;background:var(--card);border:1px solid var(--border2);border-radius:6px;padding:6px;z-index:200;min-width:180px;box-shadow:0 4px 16px rgba(0,0,0,0.2)">
+        <button onclick="exportPlannerCSV()" style="display:block;width:100%;text-align:left;background:none;border:none;color:var(--text);font-family:'DM Mono',monospace;font-size:0.72rem;padding:8px 12px;cursor:pointer;border-radius:4px">Export breakdown CSV</button>
+        <button onclick="savePDF()" style="display:block;width:100%;text-align:left;background:none;border:none;color:var(--text);font-family:'DM Mono',monospace;font-size:0.72rem;padding:8px 12px;cursor:pointer;border-radius:4px">Save as PDF</button>
+      </div>
+    </div>
       <button class="btn" id="filter-all" onclick="setPoolFilter('all')" style="font-size:0.65rem;padding:5px 10px;border-color:var(--blue2);color:var(--blue)">All</button>
       <button class="btn" id="filter-pool" onclick="setPoolFilter('pool')" style="font-size:0.65rem;padding:5px 10px">Pools</button>
       <button class="btn" id="filter-goal" onclick="setPoolFilter('goal')" style="font-size:0.65rem;padding:5px 10px">Goals</button>
@@ -1465,6 +1503,62 @@ async function updateItemTarget(id, type, idx, value) {
     calcPlanner();
     toast('Target updated', 'ok');
   } catch(e) { toast('Error: ' + e.message, 'err'); }
+}
+
+/* ── SHARE ── */
+function toggleShareMenu() {
+  const menu = document.getElementById('share-menu');
+  menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+document.addEventListener('click', function(e) {
+  const btn = document.getElementById('share-btn');
+  const menu = document.getElementById('share-menu');
+  if (menu && btn && !btn.contains(e.target) && !menu.contains(e.target)) {
+    menu.style.display = 'none';
+  }
+});
+
+function exportPlannerCSV() {
+  document.getElementById('share-menu').style.display = 'none';
+  const paycheck = parseFloat(document.getElementById('planner-paycheck').value) || 0;
+  const freq = parseInt(document.getElementById('planner-freq').value) || 26;
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const rows = [['Name','Type','Target','Saved','Remaining','Target Date','Checks Left','Per Check','% of Paycheck']];
+  let totalPerCheck = 0;
+  allItems.forEach(item => {
+    const saved = parseFloat(item.saved) || 0;
+    const target = parseFloat(item._target) || 0;
+    const remaining = Math.max(0, target - saved);
+    if (!item.target_date) {
+      rows.push([item.name, item._type, target, saved, remaining, 'No date set', '-', '-', '-']);
+      return;
+    }
+    const targetDate = new Date(item.target_date + 'T00:00:00');
+    const daysLeft = Math.round((targetDate - today) / (1000 * 60 * 60 * 24));
+    const checksLeft = Math.max(1, Math.round((daysLeft / 365) * freq));
+    const perCheck = remaining > 0 ? remaining / checksLeft : 0;
+    const pct = paycheck > 0 ? ((perCheck / paycheck) * 100).toFixed(1) + '%' : '-';
+    totalPerCheck += perCheck;
+    rows.push([item.name, item._type, target, saved, remaining.toFixed(2), item.target_date, checksLeft, perCheck.toFixed(2), pct]);
+  });
+  rows.push([]);
+  rows.push(['TOTAL PER CHECK', '', '', '', '', '', '', totalPerCheck.toFixed(2), paycheck > 0 ? ((totalPerCheck/paycheck)*100).toFixed(1)+'%' : '-']);
+  const csv = rows.map(r => r.map(v => '"' + v + '"').join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'finance-er-goals-breakdown.csv';
+  a.click();
+  toast('CSV exported', 'ok');
+}
+
+function savePDF() {
+  document.getElementById('share-menu').style.display = 'none';
+  document.getElementById('print-date').textContent = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
+  document.getElementById('planner-breakdown').style.display = 'block';
+  setTimeout(() => {
+    window.print();
+  }, 100);
 }
 
 /* ── INIT ── */
