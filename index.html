@@ -604,12 +604,10 @@ function getHeaders() {
     'apikey': SUPA_KEY,
     'Prefer': 'return=representation'
   };
-  if (currentUser) {
-    const session = supabase.auth.session ? supabase.auth.session() : null;
-    h['Authorization'] = 'Bearer ' + (session?.access_token || SUPA_KEY);
-  } else {
-    h['Authorization'] = 'Bearer ' + SUPA_KEY;
-  }
+  const token = currentUser?._accessToken || 
+    supabase.auth._session?.access_token || 
+    SUPA_KEY;
+  h['Authorization'] = 'Bearer ' + token;
   return h;
 }
 
@@ -667,6 +665,7 @@ document.getElementById('auth-password').addEventListener('keydown', e => { if (
 supabase.auth.onAuthStateChange((event, session) => {
   if (session?.user) {
     currentUser = session.user;
+    currentUser._accessToken = session.access_token;
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('nav-user').style.display = 'inline';
     document.getElementById('nav-user').textContent = session.user.email;
