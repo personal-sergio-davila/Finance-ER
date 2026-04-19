@@ -238,14 +238,10 @@ tr:hover td{background:var(--surface)}
   nav{padding:0 16px;flex-wrap:wrap}
   main{padding:20px 12px}
   .nav-brand{font-size:1rem;padding:12px 0;border-right:none;margin-right:0;flex-shrink:0}
-  .nav-brand-right{display:flex;align-items:center;gap:6px;margin-left:auto}
-  #nav-user{display:none !important}
-  #signout-btn{font-size:0.6rem;padding:5px 8px;margin-left:0}
-  #theme-btn{font-size:0.6rem;padding:5px 8px;margin-left:0}
-  .db-dot{margin-left:0}
-  .nav-tabs{order:3;width:100%;border-top:1px solid var(--border);overflow-x:auto;scrollbar-width:none;display:flex;margin:0 -16px;padding:0 16px}
+  .nav-tabs{order:3;width:100%;border-top:1px solid var(--border);overflow-x:auto;scrollbar-width:none;display:flex;margin:0 -16px;padding:0 4px}
   .nav-tabs::-webkit-scrollbar{display:none}
   .tab-btn{padding:14px 14px;font-size:0.72rem;flex-shrink:0}
+  #hamburger-btn{margin-left:auto}
 }
 
   @keyframes shimmer {
@@ -278,6 +274,9 @@ tr:hover td{background:var(--surface)}
   .print-header { display: block !important; }
 }
 .print-header { display: none; }
+.hamburger-item{display:block;width:100%;text-align:left;background:none;border:none;color:var(--text);font-family:'DM Mono',monospace;font-size:0.72rem;padding:9px 12px;cursor:pointer;border-radius:5px;transition:background 0.1s}
+.hamburger-item:hover{background:var(--surface)}
+.hamburger-item.active-theme{color:var(--blue)}
   
 </style>
 </head>
@@ -309,22 +308,27 @@ tr:hover td{background:var(--surface)}
 </div>
   
 <nav>
-  <div class="nav-brand" style="display:flex;align-items:center;justify-content:space-between;flex:none">
-  <span>Finance<span style="color:var(--teal);font-style:italic">-ER</span></span>
-  <div class="nav-brand-right" style="display:flex;align-items:center;gap:6px;margin-left:16px">
-    <span class="db-dot" id="db-dot" title="Database status"></span>
-    <span id="nav-user" style="font-size:0.62rem;color:var(--text3);white-space:nowrap;display:none"></span>
-    <button id="signout-btn" onclick="signOut()" style="display:none;background:none;border:1px solid var(--border2);color:var(--text2);font-family:'DM Mono',monospace;font-size:0.65rem;padding:6px 11px;border-radius:4px;cursor:pointer">Sign out</button>
-    <button class="theme-btn" id="theme-btn" onclick="cycleTheme()">Auto</button>
-  </div>
-</div>
-<div class="nav-tabs">
+  <div class="nav-brand">Finance<span>-ER</span></div>
+  <div class="nav-tabs">
     <button class="tab-btn active" onclick="switchTab('transactions', this)">Transactions</button>
     <button class="tab-btn" onclick="switchTab('summary', this)">Summary</button>
     <button class="tab-btn" onclick="switchTab('pools', this)">Pools & Goals</button>
     <button class="tab-btn" onclick="switchTab('bills', this)">Bills</button>
     <button class="tab-btn" onclick="switchTab('calculator', this)">Calculator</button>
     <button class="tab-btn" onclick="switchTab('settings', this)">Settings</button>
+  </div>
+  <span class="db-dot" id="db-dot" title="Database status"></span>
+  <div style="position:relative;margin-left:10px">
+    <button id="hamburger-btn" onclick="toggleHamburger()" style="background:none;border:1px solid var(--border2);color:var(--text2);font-family:'DM Mono',monospace;font-size:0.75rem;padding:7px 11px;border-radius:4px;cursor:pointer;line-height:1">☰</button>
+    <div id="hamburger-menu" style="display:none;position:absolute;right:0;top:42px;background:var(--card);border:1px solid var(--border2);border-radius:8px;padding:8px;z-index:300;min-width:200px;box-shadow:0 8px 24px rgba(0,0,0,0.3)">
+      <div id="hamburger-email" style="font-size:0.65rem;color:var(--text3);padding:8px 12px;border-bottom:1px solid var(--border);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+      <div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text3);padding:4px 12px;margin-bottom:4px">Theme</div>
+      <button onclick="setTheme('auto')" id="theme-auto" class="hamburger-item active-theme">Auto (system)</button>
+      <button onclick="setTheme('dark')" id="theme-dark" class="hamburger-item">Dark</button>
+      <button onclick="setTheme('light')" id="theme-light" class="hamburger-item">Light</button>
+      <div style="border-top:1px solid var(--border);margin:6px 0"></div>
+      <button onclick="signOut()" class="hamburger-item" style="color:var(--red)">Sign out</button>
+    </div>
   </div>
 </nav>
 
@@ -680,15 +684,12 @@ sb.auth.onAuthStateChange((event, session) => {
     currentUser = session.user;
     currentUser._accessToken = session.access_token;
     document.getElementById('auth-screen').style.display = 'none';
-    document.getElementById('nav-user').style.display = 'inline';
-    document.getElementById('nav-user').textContent = session.user.email;
-    document.getElementById('signout-btn').style.display = 'inline';
+    document.getElementById('hamburger-email').textContent = session.user.email;
     initApp();
   } else {
     currentUser = null;
     document.getElementById('auth-screen').style.display = 'flex';
-    document.getElementById('nav-user').style.display = 'none';
-    document.getElementById('signout-btn').style.display = 'none';
+    document.getElementById('hamburger-email').textContent = '';
   }
 });
 
@@ -727,13 +728,29 @@ function toast(msg, type) {
 }
 
 /* ── THEME ── */
-var themeState = 'auto';
-function cycleTheme() {
-  var btn = document.getElementById('theme-btn');
-  if (themeState === 'auto') { themeState = 'dark'; document.documentElement.setAttribute('data-theme','dark'); btn.textContent = 'Dark'; }
-  else if (themeState === 'dark') { themeState = 'light'; document.documentElement.setAttribute('data-theme','light'); btn.textContent = 'Light'; }
-  else { themeState = 'auto'; document.documentElement.removeAttribute('data-theme'); btn.textContent = 'Auto'; }
+function setTheme(mode) {
+  ['auto','dark','light'].forEach(m => {
+    document.getElementById('theme-' + m).classList.remove('active-theme');
+  });
+  document.getElementById('theme-' + mode).classList.add('active-theme');
+  if (mode === 'dark') document.documentElement.setAttribute('data-theme','dark');
+  else if (mode === 'light') document.documentElement.setAttribute('data-theme','light');
+  else document.documentElement.removeAttribute('data-theme');
+  document.getElementById('hamburger-menu').style.display = 'none';
 }
+
+function toggleHamburger() {
+  const menu = document.getElementById('hamburger-menu');
+  menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+
+document.addEventListener('click', function(e) {
+  const btn = document.getElementById('hamburger-btn');
+  const menu = document.getElementById('hamburger-menu');
+  if (menu && btn && !btn.contains(e.target) && !menu.contains(e.target)) {
+    menu.style.display = 'none';
+  }
+});
 
 /* ── TABS ── */
 function switchTab(name, el) {
