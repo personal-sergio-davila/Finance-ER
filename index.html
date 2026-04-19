@@ -10,6 +10,7 @@
   
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
   --bg: #090c10;
@@ -276,6 +277,30 @@ tr:hover td{background:var(--surface)}
 <body>
 <div class="app">
 
+<!-- AUTH SCREEN -->
+<div id="auth-screen" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:40px;width:100%;max-width:380px">
+    <div style="text-align:center;margin-bottom:32px">
+      <div style="font-family:'Instrument Serif',serif;font-size:2rem;color:var(--blue)">Finance<span style="color:var(--teal);font-style:italic">-ER</span></div>
+      <div style="font-size:0.72rem;color:var(--text3);margin-top:6px">Your personal finance dashboard</div>
+    </div>
+    <div id="auth-error" style="display:none;background:rgba(224,92,92,0.1);border:1px solid rgba(224,92,92,0.3);color:var(--red);font-size:0.72rem;padding:10px 12px;border-radius:4px;margin-bottom:16px"></div>
+    <div style="margin-bottom:16px">
+      <label style="display:block;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text3);margin-bottom:6px">Email</label>
+      <input type="email" id="auth-email" placeholder="you@example.com" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.85rem;padding:10px 12px;border-radius:4px;outline:none">
+    </div>
+    <div style="margin-bottom:24px">
+      <label style="display:block;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text3);margin-bottom:6px">Password</label>
+      <input type="password" id="auth-password" placeholder="••••••••" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.85rem;padding:10px 12px;border-radius:4px;outline:none">
+    </div>
+    <button id="auth-submit-btn" onclick="authSubmit()" style="width:100%;background:var(--blue2);border:none;color:#fff;font-family:'DM Mono',monospace;font-size:0.78rem;padding:12px;border-radius:4px;cursor:pointer;letter-spacing:0.05em;margin-bottom:12px">Sign in</button>
+    <div style="text-align:center">
+      <span style="font-size:0.68rem;color:var(--text3)" id="auth-toggle-text">Don't have an account?</span>
+      <button onclick="toggleAuthMode()" style="background:none;border:none;color:var(--blue);font-family:'DM Mono',monospace;font-size:0.68rem;cursor:pointer;margin-left:4px" id="auth-toggle-btn">Sign up</button>
+    </div>
+  </div>
+</div>
+  
 <nav>
   <div class="nav-brand">Finance<span>-ER</span></div>
   <div class="nav-tabs">
@@ -287,7 +312,9 @@ tr:hover td{background:var(--surface)}
     <button class="tab-btn" onclick="switchTab('settings')">Settings</button>
   </div>
   <span class="db-dot" id="db-dot" title="Database status"></span>
-  <button class="theme-btn" id="theme-btn" onclick="cycleTheme()">Auto</button>
+  <span id="nav-user" style="font-size:0.62rem;color:var(--text3);margin-left:10px;white-space:nowrap;display:none"></span>
+<button id="signout-btn" onclick="signOut()" style="display:none;background:none;border:1px solid var(--border2);color:var(--text2);font-family:'DM Mono',monospace;font-size:0.65rem;padding:6px 11px;border-radius:4px;cursor:pointer;margin-left:6px">Sign out</button>
+<button class="theme-btn" id="theme-btn" onclick="cycleTheme()">Auto</button>
 </nav>
 
 <main>
@@ -568,31 +595,112 @@ tr:hover td{background:var(--surface)}
 const SUPA_URL = 'https://ctccqiohmeljddybfmby.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0Y2NxaW9obWVsamRkeWJmbWJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MzA2MTcsImV4cCI6MjA5MjEwNjYxN30.VShTCAch-plBFp_49SIgeKkSveS38lHChRijqUN3JAM';
 
-const headers = {
-  'Content-Type': 'application/json',
-  'apikey': SUPA_KEY,
-  'Authorization': 'Bearer ' + SUPA_KEY,
-  'Prefer': 'return=representation'
-};
+const supabase = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+let currentUser = null;
+
+function getHeaders() {
+  const h = {
+    'Content-Type': 'application/json',
+    'apikey': SUPA_KEY,
+    'Prefer': 'return=representation'
+  };
+  if (currentUser) {
+    const session = supabase.auth.session ? supabase.auth.session() : null;
+    h['Authorization'] = 'Bearer ' + (session?.access_token || SUPA_KEY);
+  } else {
+    h['Authorization'] = 'Bearer ' + SUPA_KEY;
+  }
+  return h;
+}
+
+/* ── AUTH ── */
+let authMode = 'signin';
+
+function toggleAuthMode() {
+  authMode = authMode === 'signin' ? 'signup' : 'signin';
+  document.getElementById('auth-submit-btn').textContent = authMode === 'signin' ? 'Sign in' : 'Create account';
+  document.getElementById('auth-toggle-text').textContent = authMode === 'signin' ? "Don't have an account?" : 'Already have an account?';
+  document.getElementById('auth-toggle-btn').textContent = authMode === 'signin' ? 'Sign up' : 'Sign in';
+  document.getElementById('auth-error').style.display = 'none';
+}
+
+async function authSubmit() {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const errEl = document.getElementById('auth-error');
+  errEl.style.display = 'none';
+  if (!email || !password) { errEl.textContent = 'Please enter email and password.'; errEl.style.display = 'block'; return; }
+  const btn = document.getElementById('auth-submit-btn');
+  btn.textContent = 'Please wait...';
+  btn.disabled = true;
+  try {
+    let result;
+    if (authMode === 'signin') {
+      result = await supabase.auth.signInWithPassword({email, password});
+    } else {
+      result = await supabase.auth.signUp({email, password});
+    }
+    if (result.error) throw result.error;
+    if (authMode === 'signup' && !result.data?.session) {
+      errEl.style.color = 'var(--green)';
+      errEl.textContent = 'Account created! You can now sign in.';
+      errEl.style.display = 'block';
+      authMode = 'signin';
+      document.getElementById('auth-submit-btn').textContent = 'Sign in';
+    }
+  } catch(e) {
+    errEl.style.color = 'var(--red)';
+    errEl.textContent = e.message || 'Authentication failed.';
+    errEl.style.display = 'block';
+  }
+  btn.disabled = false;
+  btn.textContent = authMode === 'signin' ? 'Sign in' : 'Create account';
+}
+
+async function signOut() {
+  await supabase.auth.signOut();
+}
+
+document.getElementById('auth-email').addEventListener('keydown', e => { if (e.key === 'Enter') authSubmit(); });
+document.getElementById('auth-password').addEventListener('keydown', e => { if (e.key === 'Enter') authSubmit(); });
+
+supabase.auth.onAuthStateChange((event, session) => {
+  if (session?.user) {
+    currentUser = session.user;
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('nav-user').style.display = 'inline';
+    document.getElementById('nav-user').textContent = session.user.email;
+    document.getElementById('signout-btn').style.display = 'inline';
+    initApp();
+  } else {
+    currentUser = null;
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('nav-user').style.display = 'none';
+    document.getElementById('signout-btn').style.display = 'none';
+  }
+});
 
 async function dbGet(table, params) {
   const q = params ? '?' + params : '';
-  const r = await fetch(SUPA_URL + '/rest/v1/' + table + q, { headers });
+  const r = await fetch(SUPA_URL + '/rest/v1/' + table + q, { headers: getHeaders() });
   if (!r.ok) throw new Error(await r.text());
   return r.json();
 }
 async function dbInsert(table, data) {
-  const r = await fetch(SUPA_URL + '/rest/v1/' + table, { method:'POST', headers, body: JSON.stringify(data) });
+  const payload = Array.isArray(data)
+    ? data.map(d => currentUser ? {...d, user_id: currentUser.id} : d)
+    : (currentUser ? {...data, user_id: currentUser.id} : data);
+  const r = await fetch(SUPA_URL + '/rest/v1/' + table, { method:'POST', headers: getHeaders(), body: JSON.stringify(payload) });
   if (!r.ok) throw new Error(await r.text());
   return r.json();
 }
 async function dbUpdate(table, id, data) {
-  const r = await fetch(SUPA_URL + '/rest/v1/' + table + '?id=eq.' + id, { method:'PATCH', headers, body: JSON.stringify(data) });
+  const r = await fetch(SUPA_URL + '/rest/v1/' + table + '?id=eq.' + id, { method:'PATCH', headers: getHeaders(), body: JSON.stringify(data) });
   if (!r.ok) throw new Error(await r.text());
   return r.json();
 }
 async function dbDelete(table, id) {
-  const r = await fetch(SUPA_URL + '/rest/v1/' + table + '?id=eq.' + id, { method:'DELETE', headers });
+  const r = await fetch(SUPA_URL + '/rest/v1/' + table + '?id=eq.' + id, { method:'DELETE', headers: getHeaders() });
   if (!r.ok) throw new Error(await r.text());
 }
 
@@ -723,7 +831,7 @@ async function loadSampleData() {
 async function clearAllTransactions() {
   if (!confirm('Delete ALL transactions from the database? This cannot be undone.')) return;
   try {
-    await fetch(SUPA_URL + '/rest/v1/transactions?id=neq.00000000-0000-0000-0000-000000000000', { method:'DELETE', headers });
+    await fetch(SUPA_URL + '/rest/v1/transactions?id=neq.00000000-0000-0000-0000-000000000000', { method:'DELETE', headers: getHeaders() });
     transactions = [];
     renderTxTable();
     toast('All transactions cleared', 'ok');
@@ -1562,17 +1670,19 @@ function savePDF() {
 }
 
 /* ── INIT ── */
-loadTransactions();
-loadPools();
-loadBills();
-loadBudgetLimits();
-loadSettings();
-loadScenarios();
-calcCompound();
-const savedPaycheck = localStorage.getItem('fer-paycheck');
-const savedFreq = localStorage.getItem('fer-freq');
-if (savedPaycheck) document.getElementById('planner-paycheck').value = savedPaycheck;
-if (savedFreq) document.getElementById('planner-freq').value = savedFreq;
+function initApp() {
+  loadTransactions();
+  loadPools();
+  loadBills();
+  loadBudgetLimits();
+  loadSettings();
+  loadScenarios();
+  calcCompound();
+  const savedPaycheck = localStorage.getItem('fer-paycheck');
+  const savedFreq = localStorage.getItem('fer-freq');
+  if (savedPaycheck) document.getElementById('planner-paycheck').value = savedPaycheck;
+  if (savedFreq) document.getElementById('planner-freq').value = savedFreq;
+}
 </script>
 </body>
 </html>
