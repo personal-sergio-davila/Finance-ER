@@ -894,7 +894,7 @@ function renderPools() {
     const isComplete = saved >= target && target > 0;
     const typeBadge = `<span style="font-size:0.58rem;text-transform:uppercase;letter-spacing:0.08em;padding:2px 6px;border-radius:2px;background:${p._type==='goal'?'rgba(62,200,192,0.15)':'rgba(91,156,246,0.15)'};color:${p._type==='goal'?'var(--teal)':'var(--blue)'}">${p._type}</span>`;
     const globalIdx = allItems.indexOf(p);
-    return `<div class="pool-card" style="${isComplete ? 'border-color:#3a72c4;box-shadow:0 0 0 1px #3a72c4,0 0 18px 2px rgba(91,156,246,0.18);' : ''}">
+    return `<div class="pool-card" style="${isComplete ? 'border-color:#c9a84c;box-shadow:0 0 0 1px #c9a84c,0 0 24px 4px rgba(201,168,76,0.22);background:linear-gradient(135deg,var(--card) 60%,rgba(201,168,76,0.07) 100%);' : ''}">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
         <div class="p-name">${p.name}</div>
         <div style="display:flex;gap:4px;align-items:center">
@@ -909,7 +909,7 @@ function renderPools() {
 </div>
 ${p.target_date ? `<div style="font-size:0.62rem;color:var(--teal);margin-bottom:4px">By: ${formatGoalDate(p.target_date)} · ${daysUntil(p.target_date)}</div>` : '<div style="font-size:0.62rem;color:var(--text3);margin-bottom:4px">No target date set</div>'}
 <input type="date" id="date-${p.id}" value="${p.target_date||''}" onchange="updateItemDate('${p.id}','${p._type}',this.value)" style="background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:0.62rem;padding:3px 6px;border-radius:3px;outline:none;width:100%;margin-bottom:6px">
-      <div class="pool-track"><div class="pool-fill" style="width:${pct.toFixed(1)}%;background:${isComplete ? 'linear-gradient(90deg,#5b9cf6,#3ec8c0,#5b9cf6)' : p.color};${isComplete ? 'background-size:200% 100%;animation:shimmer 2s linear infinite;' : ''}"></div></div>
+      <div class="pool-track"><div class="pool-fill" style="width:${pct.toFixed(1)}%;background:${isComplete ? 'linear-gradient(90deg,#c9a84c,#f0d080,#c9a84c)' : p.color};${isComplete ? 'background-size:200% 100%;animation:shimmer 2s linear infinite;' : ''}"></div></div>
       <div class="p-pct">${pct.toFixed(0)}% of target</div>
       <div class="pool-input-row">
   <input type="number" placeholder="Amount $" id="pool-add-${globalIdx}" step="0.01" style="min-width:0;flex:1">
