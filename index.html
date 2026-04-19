@@ -1368,6 +1368,8 @@ function togglePlannerBreakdown() {
 }
 
 function calcPlanner() {
+  localStorage.setItem('fer-paycheck', document.getElementById('planner-paycheck').value);
+  localStorage.setItem('fer-freq', document.getElementById('planner-freq').value);
   const paycheck = parseFloat(document.getElementById('planner-paycheck').value) || 0;
   const freq = parseInt(document.getElementById('planner-freq').value) || 26;
   if (!paycheck) { document.getElementById('planner-result').style.display = 'none'; return; }
@@ -1465,6 +1467,10 @@ loadBudgetLimits();
 loadSettings();
 loadScenarios();
 calcCompound();
+const savedPaycheck = localStorage.getItem('fer-paycheck');
+const savedFreq = localStorage.getItem('fer-freq');
+if (savedPaycheck) document.getElementById('planner-paycheck').value = savedPaycheck;
+if (savedFreq) document.getElementById('planner-freq').value = savedFreq;
 </script>
 </body>
 </html>
